@@ -1,9 +1,9 @@
-import Navbar from '../Navbar';
-import LogoHome from '../LogoHome';
-import NewsLetterSignup from '../Newsletter';
-import AboutBio from '../AboutBio';
-import AboutGallery from '../AboutGallery';
-import DropdownMenu from '../DropdownMenu';
+import Navbar from '../layout/Navbar';
+import LogoHome from '../logo/LogoHome';
+import NewsLetterSignup from '../home/Newsletter';
+import AboutBio from './AboutBio';
+import AboutGallery from './AboutGallery';
+import DropdownMenu from '../layout/DropdownMenu';
 
 export default function AboutPage() {
     return (

@@ -1,9 +1,9 @@
-import RegistrationForm from "../RegistrationForm";
-import Navbar from "../Navbar";
-import LogoHome from "../LogoHome";
-import DropdownMenu from "../DropdownMenu";
-import HomeDivider from "../HomeDivider";
-import Footer from "../Footer";
+import RegistrationForm from "./RegistrationForm";
+import Navbar from "../layout/Navbar";
+import LogoHome from "../logo/LogoHome";
+import DropdownMenu from "../layout/DropdownMenu";
+import HomeDivider from "../layout/HomeDivider";
+import Footer from "../layout/Footer";
 
 export default function RegistrationPage () {
     return (

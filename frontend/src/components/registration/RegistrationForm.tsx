@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from '../axiosConfig';
+import axios from '../../axiosConfig';
 import PersonalInfo from './PersonalInfo';
 import AccountInfo from './AccountInfo';
 import { useNavigate } from 'react-router-dom';

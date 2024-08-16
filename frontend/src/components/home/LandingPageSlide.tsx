@@ -6,7 +6,7 @@ import Slider from 'react-slick';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import DropdownMenu from "./DropdownMenu";
+import DropdownMenu from "../layout/DropdownMenu";
 
 const images = [
     '/photos/carousel/Arrivals.avif',

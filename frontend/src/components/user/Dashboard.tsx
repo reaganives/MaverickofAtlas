@@ -1,7 +1,7 @@
 import Logout from './Logout';
-import Navbar from './Navbar';
-import DropdownMenu from './DropdownMenu';
-import LogoHome from './LogoHome';
+import Navbar from '../layout/Navbar';
+import DropdownMenu from '../layout/DropdownMenu';
+import LogoHome from '../logo/LogoHome';
 import UserPage from './UserPage';
 
 

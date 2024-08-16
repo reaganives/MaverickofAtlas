@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../axiosConfig';  // Ensure axios is configured properly
+import axios from '../../axiosConfig';  // Ensure axios is configured properly
 
 const VerifyEmail = () => {
   const { token } = useParams();  // Extract the token from the URL

@@ -1,8 +1,8 @@
 import React from 'react';
-import Navbar from '../Navbar';
-import LogoHome from '../LogoHome';
-import DropdownMenu from '../DropdownMenu';
-import ShoppingCart from '../ShoppingCart';
+import Navbar from '../layout/Navbar';
+import LogoHome from '../logo/LogoHome';
+import DropdownMenu from '../layout/DropdownMenu';
+import ShoppingCart from './ShoppingCart';
 
 
 export default function CartPage() {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig';
+import axios from '../../axiosConfig';
 
 interface Order {
   _id: string;

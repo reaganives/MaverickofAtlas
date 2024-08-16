@@ -1,7 +1,7 @@
-import Navbar from '../Navbar'
-import LogoHome from '../LogoHome'
-import DropdownMenu from '../DropdownMenu'  
-import ResetPassForm from '../RequestNewPassForm'
+import Navbar from '../layout/Navbar'
+import LogoHome from '../logo/LogoHome'
+import DropdownMenu from '../layout/DropdownMenu'  
+import ResetPassForm from './RequestNewPassForm'
 
 export default function ResetPassPage () {
     return ( 

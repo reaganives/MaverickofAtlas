@@ -1,12 +1,12 @@
-import NewArrivalsGrid from "../NewArrivalsGrid";
-import LandingPageSlide from "../LandingPageSlide";
-import LogoHome from "../LogoHome";
-import Navbar from "../Navbar";
-import HomeDivider from "../HomeDivider";
-import Footer from "../Footer";
-import DropdownMenu from "../DropdownMenu";
-import NewsLetterSignup from "../Newsletter";
-import ShippingBanner from "../ShippingBanner";
+import NewArrivalsGrid from "./NewArrivalsGrid";
+import LandingPageSlide from "./LandingPageSlide";
+import LogoHome from "../logo/LogoHome";
+import Navbar from "../layout/Navbar";
+import HomeDivider from "../layout/HomeDivider";
+import Footer from "../layout/Footer";
+import DropdownMenu from "../layout/DropdownMenu";
+import NewsLetterSignup from "./Newsletter";
+import ShippingBanner from "../layout/ShippingBanner";
 
 export default function HomePage() {
     return (

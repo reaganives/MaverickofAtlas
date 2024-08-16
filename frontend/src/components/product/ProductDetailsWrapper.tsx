@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductDetails from './ProductDetails';
-import RetroIcon from './RetroIcon';
-import ArtDecoCity from './ArtDecoCity';
+import RetroIcon from '../logo/RetroIcon';
+import ArtDecoCity from '../logo/ArtDecoCity';
 
 const ProductDetailsWrapper = () => {
   return (
