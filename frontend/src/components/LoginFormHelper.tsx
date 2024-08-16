@@ -4,7 +4,7 @@ export default function LoginFormHelper() {
     return (
         <>
             <div className="flex justify-between px-32">
-                <a href="/reset-password" className="text-xs hover:underline font-noto text-ivyPurple p-2 mt-2">
+                <a href="/request-new-password" className="text-xs hover:underline font-noto text-ivyPurple p-2 mt-2">
                     Forgot your password?
                 </a>
             </div>

@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 const bcrypt = require('bcryptjs');  // Import bcryptjs for hashing
+const crypto = require('crypto');  // Import crypto for generating random tokens
 
 // Import your models
 const User = require('../models/User');
@@ -49,12 +50,15 @@ async function seedDatabase() {
       const plainPassword = faker.internet.password();  // Generate a plain password
       const hashedPassword = await bcrypt.hash(plainPassword, 10);  // Hash the password
 
-      const user = new User({
-        name: faker.person.fullName(),  // Generate full name
-        dob: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),  // Generate DOB
-        email: faker.internet.email(),
-        password: hashedPassword,  // Store the hashed password
-      });
+      const isVerified = faker.datatype.boolean();  // Generate a random boolean for isVerified
+const user = new User({
+  name: faker.person.fullName(),  // Generate full name
+  dob: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),  // Generate DOB
+  email: faker.internet.email(),
+  password: hashedPassword,  // Store the hashed password
+  isVerified,
+  verificationToken: isVerified ? undefined : crypto.randomBytes(32).toString('hex'),  // Generate token only if user is not verified
+});
 
       await user.save();
       users.push(user);

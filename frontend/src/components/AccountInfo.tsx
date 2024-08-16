@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 interface AccountInfoProps {
     email: string;
@@ -24,6 +24,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ email, setEmail, password, se
             <div className="w-full h-px bg-ivyPurple"></div>
             <h2 className='font-noto text-md mt-2 text-ivyPurple'>Email</h2>
             <label className="input input-bordered flex items-center gap-2 mb-4">
+                <FontAwesomeIcon icon={faEnvelope} className="text-ivyPurple opacity-70" />
                 <input 
                     type="email" 
                     className="grow px-2 border border-ivyPurple/10" 
@@ -35,6 +36,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ email, setEmail, password, se
             </label>
             <h2 className='font-noto text-md text-ivyPurple'>Password</h2>
             <label className="input input-bordered flex items-center gap-2">
+                <FontAwesomeIcon icon={faLock} className="text-ivyPurple opacity-70" />
                 <input
                     type={passwordVisible ? "text" : "password"}
                     className="grow px-2 border border-ivyPurple/10"
@@ -43,13 +45,9 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ email, setEmail, password, se
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <FontAwesomeIcon
-                    icon={passwordVisible ? faEye : faEyeSlash}
-                    className="cursor-pointer opacity-70"
-                    onClick={togglePasswordVisibility}
-                />
             </label>
             <label className="input input-bordered flex items-center gap-2">
+                <FontAwesomeIcon icon={faLock} className="text-ivyPurple opacity-70" />
                 <input
                     type={passwordVisible ? "text" : "password"}
                     className="grow px-2 border border-ivyPurple/10"
@@ -69,3 +67,4 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ email, setEmail, password, se
 };
 
 export default AccountInfo;
+

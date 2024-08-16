@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
+const Joi = require('joi');
 
 // Get the current authenticated user and their order history
 const getCurrentUser = async (req, res) => {
@@ -22,6 +23,7 @@ const getCurrentUser = async (req, res) => {
 
 module.exports = {
   getCurrentUser,
-}; 
+};
+
 
 

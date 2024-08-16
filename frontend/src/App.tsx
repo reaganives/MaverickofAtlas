@@ -12,6 +12,9 @@ import ItemsList from './components/ItemsList';
 import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UnprotectedRoute from './components/UnprotectedRoute';
+import RequestNewPassForm from './components/RequestNewPassForm';
+import ResetPasswordForm from './components/ResetPasswordForm';
+import VerifyEmail from './components/VerifyEmail';
 
 function App() {
   return (
@@ -141,6 +144,43 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route 
+        path="/request-new-password"
+        element={
+          <>
+          <UnprotectedRoute>
+          <div className='flex flex-col justify-center min-h-screen'>
+              <RequestNewPassForm />
+              <HomeDivider />
+              <div className='w-full flex justify-center mt-20'>
+                <div className='w-full max-w-screen-lg'>
+                  <Footer />
+                </div>
+              </div>
+          </div>
+          </UnprotectedRoute>
+          </>
+        }
+        />
+        <Route 
+        path="/reset-password/:token"
+        element={
+          <>
+          <UnprotectedRoute>
+          <div className='flex flex-col justify-center min-h-screen'>
+              <ResetPasswordForm />
+              <HomeDivider />
+              <div className='w-full flex justify-center mt-20'>
+                <div className='w-full max-w-screen-lg'>
+                  <Footer />
+                </div>
+              </div>
+          </div>
+          </UnprotectedRoute>
+          </>
+        }
+        />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
       </Routes>
     </Router>
   );
