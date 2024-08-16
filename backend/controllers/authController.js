@@ -4,15 +4,17 @@ const User = require('../models/User');  // Import your User model
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Define the Joi schema
+// Regular expression to validate "Month Day, Year" format
+const dobRegex = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}$/;
+
 const registrationSchema = Joi.object({
     name: Joi.string().min(3).max(30).required().messages({
         'string.empty': 'Name is required.',
         'string.min': 'Name must be at least 3 characters long.',
         'string.max': 'Name cannot exceed 30 characters.',
     }),
-    dob: Joi.date().iso().required().messages({
-        'date.base': 'Invalid date format.',
+    dob: Joi.string().required().messages({
+        'string.pattern.base': 'Date of birth must be in "Month Day, Year" format (e.g., January 1, 2000).',
         'any.required': 'Date of birth is required.'
     }),
     email: Joi.string().email().required().messages({
@@ -25,6 +27,9 @@ const registrationSchema = Joi.object({
         'string.max': 'Password cannot exceed 30 characters.',
     })
 });
+
+module.exports = registrationSchema;
+
 
 // Login function
 const login = async (req, res) => {

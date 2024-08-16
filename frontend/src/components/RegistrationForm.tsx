@@ -19,26 +19,33 @@ const RegistrationForm = () => {
         e.preventDefault();
         setErrorMessage(null);
         setLoading(true);
-
+    
+        const { year, month, day } = dob;  // Extract dob values from state
+        
         if (password !== verifyPassword) {
             setErrorMessage("Passwords do not match");
             setLoading(false);
             return;
         }
-
+    
         try {
-            const dobString = `${dob.year}-${dob.month}-${dob.day}`; 
+            const dobFormatted = `${year}-${month}-${day}`;  // Create a valid Date string
+            
             const response = await axios.post('/auth/register', {
                 name,
-                dob: dobString,
+                dob: dobFormatted,  // Use the formatted dob string
                 email,
                 password
             });
-
+    
+            // Save the token to localStorage
             localStorage.setItem('token', response.data.token);
-
+    
+            // Redirect the user to the homepage
             navigate('/');
+    
         } catch (error: any) {
+            console.error('Error during registration:', error);
             if (error.response && error.response.status === 400) {
                 setErrorMessage(error.response.data.error);
             } else {
@@ -48,6 +55,8 @@ const RegistrationForm = () => {
             setLoading(false);
         }
     };
+    
+    
 
     return (
         <motion.div

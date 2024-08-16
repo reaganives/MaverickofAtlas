@@ -17,6 +17,15 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ name, setName, dob, setDob 
     const days = Array.from({ length: 31 }, (_, i) => i + 1);
     const years = Array.from({ length: new Date().getFullYear() - 1924 + 1 }, (_, i) => new Date().getFullYear() - i);
 
+    // Combine the values into the format "Month Day, Year" and update dob
+    const handleDobChange = (month: string, day: string, year: string) => {
+        if (month && day && year) {
+            const formattedDob = `${month} ${day}, ${year}`; // Format as "Month Day, Year"
+            setDob({ month, day, year });
+            console.log('Formatted DOB:', formattedDob);
+        }
+    };
+
     return (
         <div className='flex flex-col w-full gap-2'>
             <h1 className='font-noto font-semibold text-lg text-ivyPurple tracking-wide'>Personal</h1>
@@ -42,12 +51,12 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ name, setName, dob, setDob 
                     <select 
                         className="grow px-2 border border-ivyPurple/10"
                         value={dob.month}
-                        onChange={(e) => setDob({ ...dob, month: e.target.value })}
+                        onChange={(e) => handleDobChange(e.target.value, dob.day, dob.year)}
                         required
                     >
                         <option value="">Month</option>
                         {months.map((month, index) => (
-                            <option key={index} value={index + 1}>
+                            <option key={index} value={month}>
                                 {month}
                             </option>
                         ))}
@@ -55,7 +64,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ name, setName, dob, setDob 
                     <select 
                         className="grow px-2 border border-ivyPurple/10"
                         value={dob.day}
-                        onChange={(e) => setDob({ ...dob, day: e.target.value })}
+                        onChange={(e) => handleDobChange(dob.month, e.target.value, dob.year)}
                         required
                     >
                         <option value="">Day</option>
@@ -68,7 +77,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ name, setName, dob, setDob 
                     <select 
                         className="grow px-2 border border-ivyPurple/10"
                         value={dob.year}
-                        onChange={(e) => setDob({ ...dob, year: e.target.value })}
+                        onChange={(e) => handleDobChange(dob.month, dob.day, e.target.value)}
                         required
                     >
                         <option value="">Year</option>
@@ -85,3 +94,4 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ name, setName, dob, setDob 
 };
 
 export default PersonalInfo;
+
