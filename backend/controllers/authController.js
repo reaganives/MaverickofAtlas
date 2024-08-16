@@ -38,26 +38,38 @@ const passwordSchema = Joi.object({
 
 // Login function
 const login = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+  try {
+    const user = await User.findOne({ email });
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error' });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.status(401).json({ error: 'Please verify your email to login.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Return both the token and user data
+    res.json({ token, user });  // Add user data to response
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 };
+
+
 
 // Register function
 const register = async (req, res) => {
@@ -120,27 +132,31 @@ const register = async (req, res) => {
 
   const verifyEmail = async (req, res) => {
     const { token } = req.params;
-  
-    try {
-      const user = await User.findOne({ verificationToken: token });
-      if (!user) {
-        return res.status(400).json({ error: 'Invalid or expired token' });
-      }
-  
-      user.isVerified = true;
-      user.verificationToken = undefined;  // Clear the token after verification
-      await user.save();
-  
-      // Create a JWT token
-      const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  
-      // Send back the JWT token along with the success message
-      res.status(200).json({ message: 'Account verified successfully', token: jwtToken });
-    } catch (error) {
-      console.error('Verification error:', error);
-      res.status(500).json({ error: 'Server error during verification' });
+  try {
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired verification token' });
     }
-  };
+
+    // Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    // Generate JWT for the user to automatically log them in
+    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({
+      message: 'Email verified successfully!',
+      token: jwtToken,
+      user: { _id: user._id },
+    });
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
   
   
 

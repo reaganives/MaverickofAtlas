@@ -16,6 +16,7 @@ export default function Navbar() {
     const handleLogout = () => {
         // Remove the token from localStorage
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
         setIsAuthenticated(false);  // Update authentication state
         navigate('/login');  // Redirect to login page
     };

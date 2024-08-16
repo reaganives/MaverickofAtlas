@@ -20,15 +20,16 @@ const LoginForm = () => {
         e.preventDefault(); // Prevent page refresh
         setErrorMessage(null); // Clear any previous errors
         setLoading(true); // Set loading state
-
+    
         try {
             const response = await axios.post('/auth/login', { email, password });
             console.log('Login successful:', response.data);
-
-            // Store the token (or other user data) in localStorage or sessionStorage
+    
+            // Store the token and userId in localStorage
             localStorage.setItem('token', response.data.token);
-
-            // Redirect to dashboard or another protected route
+            localStorage.setItem('userId', response.data.user._id);
+    
+            // Redirect to the homepage or another protected route
             navigate('/');
         } catch (error) {
             console.error('Error during login:', error);

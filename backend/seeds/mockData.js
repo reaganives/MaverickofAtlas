@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
-const bcrypt = require('bcryptjs');  // Import bcryptjs for hashing
-const crypto = require('crypto');  // Import crypto for generating random tokens
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 // Import your models
 const User = require('../models/User');
@@ -47,18 +47,18 @@ async function seedDatabase() {
     // Create Users with hashed passwords
     const users = [];
     for (let i = 0; i < 10; i++) {
-      const plainPassword = faker.internet.password();  // Generate a plain password
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);  // Hash the password
+      const plainPassword = faker.internet.password();
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-      const isVerified = faker.datatype.boolean();  // Generate a random boolean for isVerified
-const user = new User({
-  name: faker.person.fullName(),  // Generate full name
-  dob: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),  // Generate DOB
-  email: faker.internet.email(),
-  password: hashedPassword,  // Store the hashed password
-  isVerified,
-  verificationToken: isVerified ? undefined : crypto.randomBytes(32).toString('hex'),  // Generate token only if user is not verified
-});
+      const isVerified = faker.datatype.boolean();
+      const user = new User({
+        name: faker.person.fullName(),
+        dob: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
+        email: faker.internet.email(),
+        password: hashedPassword,
+        isVerified,
+        verificationToken: isVerified ? undefined : crypto.randomBytes(32).toString('hex'),
+      });
 
       await user.save();
       users.push(user);
@@ -67,6 +67,8 @@ const user = new User({
 
     // Create Items and Inventory
     const items = [];
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    const colors = ['Red', 'Blue', 'Green', 'Black', 'White'];
     for (let i = 0; i < 20; i++) {
       const category = faker.helpers.arrayElement(categories);
 
@@ -75,21 +77,24 @@ const user = new User({
         description: faker.commerce.productDescription(),
         price: faker.commerce.price(),
         category: category._id,
-        imageUrl: faker.image.url(),  // Updated function
+        imageUrl: faker.image.url(),
+        size: faker.helpers.arrayElement(sizes),  // Random size
+        color: faker.helpers.arrayElement(colors),  // Random color
+        style: faker.commerce.productAdjective(),  // Random style code
       });
       await item.save();
       items.push(item);
 
       // Create inventory for each item
       const inventory = new Inventory({
-        item: item._id,  // Reference the created item
-        stockLevel: faker.number.int({ min: 1, max: 100 }),  // Updated function
+        item: item._id,
+        stockLevel: faker.number.int({ min: 1, max: 100 }),
         restockDate: faker.date.past(),
-        restockedQuantity: faker.number.int({ min: 5, max: 50 }),  // Updated function
+        restockedQuantity: faker.number.int({ min: 5, max: 50 }),
       });
       await inventory.save();
 
-      // Update item with inventory reference if needed
+      // Update item with inventory reference
       item.inventory = inventory._id;
       await item.save();
     }
@@ -102,28 +107,42 @@ const user = new User({
       const review = new Review({
         user: user._id,
         item: item._id,
-        rating: faker.number.int({ min: 1, max: 5 }),  // Updated function
+        rating: faker.number.int({ min: 1, max: 5 }),
         comment: faker.lorem.sentence(),
       });
       await review.save();
     }
 
-    // Create Carts
-    for (let i = 0; i < 10; i++) {
-      const user = faker.helpers.arrayElement(users);
-      const cartItems = [];
+    // Create Carts with items
+for (let i = 0; i < 10; i++) {
+  const user = faker.helpers.arrayElement(users);
 
-      for (let j = 0; j < 3; j++) {
-        const item = faker.helpers.arrayElement(items);
-        cartItems.push({ item: item._id, quantity: faker.number.int({ min: 1, max: 5 }) });
-      }
+  // Ensure user is valid before proceeding
+  if (!user || !user._id) {
+    console.error(`Invalid user for cart creation: ${user}`);
+    continue; // Skip invalid users
+  }
 
-      const cart = new Cart({
-        user: user._id,
-        items: cartItems,
-      });
-      await cart.save();
-    }
+  const cartItems = [];
+
+  for (let j = 0; j < 3; j++) {
+    const item = faker.helpers.arrayElement(items);
+    cartItems.push({
+      item: item._id,
+      quantity: faker.number.int({ min: 1, max: 5 }),
+      size: faker.helpers.arrayElement(sizes),
+      color: faker.helpers.arrayElement(colors),
+    });
+  }
+
+  const cart = new Cart({
+    user: user._id,
+    items: cartItems,
+  });
+
+  await cart.save();
+}
+
 
     // Create Orders
     for (let i = 0; i < 15; i++) {
@@ -132,7 +151,12 @@ const user = new User({
 
       for (let j = 0; j < 3; j++) {
         const item = faker.helpers.arrayElement(items);
-        orderItems.push({ item: item._id, quantity: faker.number.int({ min: 1, max: 5 }) });
+        orderItems.push({
+          item: item._id,
+          quantity: faker.number.int({ min: 1, max: 5 }),
+          size: faker.helpers.arrayElement(sizes),  // Random size for order item
+          color: faker.helpers.arrayElement(colors),  // Random color for order item
+        });
       }
 
       const order = new Order({
@@ -172,6 +196,7 @@ const user = new User({
 }
 
 seedDatabase();
+
 
 
 

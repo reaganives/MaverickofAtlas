@@ -44,9 +44,6 @@ const RegistrationForm = () => {
       setSuccessMessage('Registration successful! Please check your email to verify your account.');
       setErrorMessage(null);
 
-      // Optionally, navigate to a verification confirmation page after a delay
-      setTimeout(() => navigate('/verify-email'), 3000);
-
     } catch (error: any) {
       console.error('Error during registration:', error);
       if (error.response && error.response.status === 400) {

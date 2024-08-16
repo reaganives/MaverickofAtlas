@@ -13,21 +13,25 @@ const VerifyEmail = () => {
       try {
         const response = await axios.get(`/auth/verify-email/${token}`);
         
-        // Set success message
-        setSuccessMessage(response.data.message);
+        // Ensure both token and userId are stored in localStorage
+        const { token: authToken, user } = response.data;
+        
+        if (authToken && user?._id) {
+          // Store both token and userId in localStorage
+          localStorage.setItem('token', authToken);
+          localStorage.setItem('userId', user._id);
 
-        // Store the JWT token in localStorage (or another storage mechanism)
-        localStorage.setItem('token', response.data.token);
-
-        // Automatically log the user in and redirect to the home page
-        setTimeout(() => navigate('/'), 2000);  // Redirect to home page after 2 seconds
+          // Set success message
+          setSuccessMessage('Verification successful! You are now logged in.');
+          
+          // Redirect to home page after 2 seconds
+          setTimeout(() => navigate('/'), 2000);
+        } else {
+          setErrorMessage('Verification failed. Invalid token or missing user data.');
+        }
       } catch (error) {
         console.error('Verification error:', error);
-        if (error.response && error.response.status === 400) {
-          setErrorMessage(error.response.data.error);
-        } else {
-          setErrorMessage('Verification failed. Please try again.');
-        }
+        setErrorMessage('Verification failed. Please try again.');
       }
     };
 
@@ -46,4 +50,6 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
+
+
 
