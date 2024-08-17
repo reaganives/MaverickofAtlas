@@ -5,8 +5,6 @@ const userSchema = new mongoose.Schema({
     dob: { type: String, required: false },  // Add Dob field and mark
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], // Array of references to Orders
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }], // Array of references to Reviews
     createdAt: { type: Date, default: Date.now },
     isVerified: { type: Boolean, default: false },
     verificationToken: String

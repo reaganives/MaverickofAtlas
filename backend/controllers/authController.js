@@ -47,29 +47,48 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Check if the user is verified
-    if (!user.isVerified) {
-      return res.status(401).json({ error: 'Please verify your email to login.' });
-    }
-
+    // Check the password first before anything else
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // If user is not verified, send verification email
+    if (!user.isVerified) {
+      const verificationLink = `http://localhost:5173/verify-email/${user.verificationToken}`;  // Adjust this to your frontend URL
+      const params = {
+        Destination: {
+          ToAddresses: [email]
+        },
+        Message: {
+          Body: {
+            Html: {
+              Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>`
+            }
+          },
+          Subject: { Data: 'Verify Your Email' }
+        },
+        Source: process.env.EMAIL_SOURCE
+      };
 
-    // Return both the token and user data
-    res.json({ token, user });  // Add user data to response
+      // Send the email
+      await ses.sendEmail(params).promise();
+      console.log('Verification email sent.');
+
+      return res.status(401).json({ error: 'Please verify your email first to log in. A verification link has been sent.' });
+    }
+
+    // Generate a JWT token for verified users
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    
+    // Send back the token and user info
+    res.json({ token, user });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
-
-
 
 // Register function
 const register = async (req, res) => {

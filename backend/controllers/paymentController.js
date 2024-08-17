@@ -1,14 +1,21 @@
 const Payment = require('../models/Payment');
 
 // Get payment by ID
-exports.getPaymentById = async (req, res) => {
+exports.getPaymentByOrderId = async (req, res) => {
+  const { orderId } = req.params;
   try {
-    const payment = await Payment.findById(req.params.id);
-    res.json(payment);
+    const payment = await Payment.findOne({ order: req.params.id });
+    if (!payment) {
+      console.log(`No payment data found for order ID: ${req.params.id}`);
+      return res.status(404).json({ message: "Payment data not found" });
+    }
+    res.json({ payment });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error fetching payment data:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Create a new payment
 exports.createPayment = async (req, res) => {

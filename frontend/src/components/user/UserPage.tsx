@@ -1,72 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import axios from '../../axiosConfig';
-
-interface Order {
-  _id: string;
-  status: string;
-  totalAmount: number;
-}
-
-interface User {
-  name: string;
-  dob: Date;
-  email: string;
-}
+import UserInfo from './UserInfo';
+import OrderDetails from './OrderDetails';
+import { useUserData } from './useUserData';
 
 const UserPage = () => {
-  const [userData, setUserData] = useState<User | null>(null);
-  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Fetch user details and order history
-    axios.get('/users/me')
-      .then(response => {
-        setUserData(response.data.user);
-        setOrderHistory(response.data.orders);
-        setLoading(false);
-      })
-      .catch(error => {
-        setError('Error fetching user data');
-        setLoading(false);
-      });
-  }, []);
+  const { userData, orderHistory, loading, error } = useUserData();
 
   if (loading) {
-    return <p>Loading user data...</p>;
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <p className="text-lg font-semibold">Loading user and order data...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <p className="text-lg text-red-500">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>User Account Information</h1>
-      {userData && (
-        <>
-          <p>Name: {userData.name}</p>
-            <p>Date of Birth: {userData.dob}</p>
-          <p>Email: {userData.email}</p>
-        </>
+    <div className="min-h-screen flex flex-col items-center py-8 px-4 md:px-12 bg-gray-50">
+      {userData ? (
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl mb-8">
+          <UserInfo
+            name={userData.name}
+            dob={userData.dob}
+            email={userData.email}
+            createdAt={userData.createdAt}
+          />
+        </div>
+      ) : (
+        <p className="text-lg text-gray-700">No user data found.</p>
       )}
 
-      <h2>Order History</h2>
+      <h2 className="text-2xl font-bold mb-4">Order History</h2>
       {orderHistory.length > 0 ? (
-        <ul>
+        <ul className="w-full max-w-3xl">
           {orderHistory.map(order => (
-            <li key={order._id}>
-              Order #{order._id} - {order.status} - ${order.totalAmount}
+            <li key={order._id} className="bg-white shadow-lg rounded-lg p-6 mb-6">
+              <OrderDetails
+                _id={order._id}
+                totalAmount={order.totalAmount}
+                orderStatus={order.orderStatus}
+                createdAt={order.createdAt}
+                items={order.items}  // Pass in the detailed items for each order
+                shipping={order.shipping}
+                payment={order.payment}
+              />
             </li>
           ))}
         </ul>
       ) : (
-        <p>No orders found.</p>
+        <p className="text-lg text-gray-700">No orders found.</p>
       )}
     </div>
   );
 };
 
 export default UserPage;
+
+
 

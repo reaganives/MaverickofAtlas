@@ -1,4 +1,3 @@
-import Logout from './Logout';
 import Navbar from '../layout/Navbar';
 import DropdownMenu from '../layout/DropdownMenu';
 import LogoHome from '../logo/LogoHome';

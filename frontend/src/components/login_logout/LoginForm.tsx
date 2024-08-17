@@ -17,30 +17,35 @@ const LoginForm = () => {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); // Prevent page refresh
-        setErrorMessage(null); // Clear any previous errors
-        setLoading(true); // Set loading state
+        e.preventDefault(); 
+        setErrorMessage(null); 
+        setLoading(true); 
     
         try {
             const response = await axios.post('/auth/login', { email, password });
             console.log('Login successful:', response.data);
-    
+
             // Store the token and userId in localStorage
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('userId', response.data.user._id);
     
             // Redirect to the homepage or another protected route
             navigate('/');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error during login:', error);
-            setErrorMessage('Invalid email or password. Please try again.');
+            if (error.response && error.response.data.error.includes('verify')) {
+                setErrorMessage(error.response.data.error);
+            } else {
+                setErrorMessage('Invalid email or password. Please try again.');
+            }
         } finally {
-            setLoading(false);  // Stop loading state after login attempt
+            setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex justify-center gap-24 border py-4 px-12 border-ivyPurple border-dotted">
+        <div className="">
+        <form onSubmit={handleSubmit} className="flex justify-center gap-24 border py-4 px-12 border-ivyPurple border-dotted w-full">
             <label className="input input-bordered flex items-center gap-2">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -91,9 +96,14 @@ const LoginForm = () => {
             <button className='btn py-0.5 px-4 tracking-widest text-xs text-white bg-ivyPurple' type="submit" disabled={loading}>
                 {loading ? 'Logging in...' : 'Login'}
             </button>
-
-            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </form>
+        <div className="flex justify-between px-32">
+                <a href="/request-new-password" className="text-xs hover:underline font-noto text-ivyPurple p-2 mt-2">
+                    Forgot your password?
+                </a>
+            </div>
+        {errorMessage && <p className="text-red-500 font-quicksand text-sm text-center">{errorMessage}</p>}
+        </div>
     );
 };
 

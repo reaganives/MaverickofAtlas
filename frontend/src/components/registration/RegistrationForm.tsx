@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from '../../axiosConfig';
-import PersonalInfo from './PersonalInfo';
-import AccountInfo from './AccountInfo';
+import FormFields from './FormFields';  // The new component that holds the fields
 import { useNavigate } from 'react-router-dom';
 
 const RegistrationForm = () => {
@@ -12,14 +11,14 @@ const RegistrationForm = () => {
   const [password, setPassword] = useState('');
   const [verifyPassword, setVerifyPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);  // Success message for verification
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    setSuccessMessage(null);  // Clear success message on new submission
+    setSuccessMessage(null);
     setLoading(true);
 
     const { year, month, day } = dob;
@@ -40,9 +39,18 @@ const RegistrationForm = () => {
         password
       });
 
-      // Instead of logging the user in, show a success message
+      console.log('Registration response:', response.data);
+
+      // Set success message and clear the form
       setSuccessMessage('Registration successful! Please check your email to verify your account.');
       setErrorMessage(null);
+
+      // Clear the form fields after successful submission
+      setName('');
+      setDob({ month: '', day: '', year: '' });
+      setEmail('');
+      setPassword('');
+      setVerifyPassword('');
 
     } catch (error: any) {
       console.error('Error during registration:', error);
@@ -65,25 +73,18 @@ const RegistrationForm = () => {
     >
       <form onSubmit={handleSubmit}>
         <div className='flex flex-col justify-center p-8 items-center border border-ivyPurple border-dotted'>
-          <div className="flex justify-center py-4 px-12 gap-40">
-            {/* Personal Info */}
-            <PersonalInfo
-              name={name}
-              setName={setName}
-              dob={dob}
-              setDob={setDob}
-            />
-
-            {/* Account Info */}
-            <AccountInfo
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              verifyPassword={verifyPassword}
-              setVerifyPassword={setVerifyPassword}
-            />
-          </div>
+          <FormFields
+            name={name}
+            setName={setName}
+            dob={dob}
+            setDob={setDob}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            verifyPassword={verifyPassword}
+            setVerifyPassword={setVerifyPassword}
+          />
         </div>
         <div className='flex flex-col items-center gap-4 justify-center'>
           <button
@@ -94,7 +95,7 @@ const RegistrationForm = () => {
             {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
           {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-          {successMessage && <p className="text-green-500">{successMessage}</p>}  {/* Success message */}
+          {successMessage && <p className="text-green-500">{successMessage}</p>}
         </div>
       </form>
     </motion.div>
@@ -102,3 +103,5 @@ const RegistrationForm = () => {
 };
 
 export default RegistrationForm;
+
+

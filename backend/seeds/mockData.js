@@ -16,7 +16,7 @@ const Payment = require('../models/Payment');
 const Shipping = require('../models/Shipping');
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://reaganives:fMKCDznObK9r1dxg@maverickofatlasdb.k3bup.mongodb.net/?retryWrites=true&w=majority&appName=maverickOfAtlasDB")
+mongoose.connect('mongodb+srv://reaganives:fMKCDznObK9r1dxg@maverickofatlasdb.k3bup.mongodb.net/?retryWrites=true&w=majority&appName=maverickOfAtlasDB')  // Replace with your connection string
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(err));
 
@@ -44,26 +44,21 @@ async function seedDatabase() {
       await category.save();
     }
 
-    // Create Users with hashed passwords
-    const users = [];
-    for (let i = 0; i < 10; i++) {
-      const plainPassword = faker.internet.password();
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    // Create Hardcoded Test User
+    const plainPassword = 'password123';  // Set a password you can use
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-      const isVerified = faker.datatype.boolean();
-      const user = new User({
-        name: faker.person.fullName(),
-        dob: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
-        email: faker.internet.email(),
-        password: hashedPassword,
-        isVerified,
-        verificationToken: isVerified ? undefined : crypto.randomBytes(32).toString('hex'),
-      });
+    const testUser = new User({
+      name: 'Maverick of Atlas',
+      dob: new Date('1990-01-01'), // Example DOB
+      email: 'maverickofatlas@gmail.com',
+      password: hashedPassword,
+      isVerified: true,
+      createdAt: new Date(),  // Set the join date to now
+    });
 
-      await user.save();
-      users.push(user);
-      console.log(`Created user: ${user.email} with password: ${plainPassword}`);
-    }
+    await testUser.save();
+    console.log(`Hardcoded test user created: ${testUser.email} with password: ${plainPassword}`);
 
     // Create Items and Inventory
     const items = [];
@@ -99,54 +94,28 @@ async function seedDatabase() {
       await item.save();
     }
 
-    // Create Reviews
-    for (let i = 0; i < 30; i++) {
-      const user = faker.helpers.arrayElement(users);
+    // Add Items to Cart for the Hardcoded Test User
+    const cartItems = [];
+    for (let i = 0; i < 3; i++) {
       const item = faker.helpers.arrayElement(items);
-
-      const review = new Review({
-        user: user._id,
+      cartItems.push({
         item: item._id,
-        rating: faker.number.int({ min: 1, max: 5 }),
-        comment: faker.lorem.sentence(),
+        quantity: faker.number.int({ min: 1, max: 5 }),
+        size: faker.helpers.arrayElement(sizes),
+        color: faker.helpers.arrayElement(colors),
       });
-      await review.save();
     }
 
-    // Create Carts with items
-for (let i = 0; i < 10; i++) {
-  const user = faker.helpers.arrayElement(users);
-
-  // Ensure user is valid before proceeding
-  if (!user || !user._id) {
-    console.error(`Invalid user for cart creation: ${user}`);
-    continue; // Skip invalid users
-  }
-
-  const cartItems = [];
-
-  for (let j = 0; j < 3; j++) {
-    const item = faker.helpers.arrayElement(items);
-    cartItems.push({
-      item: item._id,
-      quantity: faker.number.int({ min: 1, max: 5 }),
-      size: faker.helpers.arrayElement(sizes),
-      color: faker.helpers.arrayElement(colors),
+    const cart = new Cart({
+      user: testUser._id,
+      items: cartItems,
     });
-  }
 
-  const cart = new Cart({
-    user: user._id,
-    items: cartItems,
-  });
+    await cart.save();
+    console.log(`Cart created for hardcoded user: ${testUser.email}`);
 
-  await cart.save();
-}
-
-
-    // Create Orders
-    for (let i = 0; i < 15; i++) {
-      const user = faker.helpers.arrayElement(users);
+    // Create Orders, Payment, and Shipping for the Hardcoded Test User
+    for (let i = 0; i < 3; i++) {  // Create 3 orders for the test user
       const orderItems = [];
 
       for (let j = 0; j < 3; j++) {
@@ -154,13 +123,12 @@ for (let i = 0; i < 10; i++) {
         orderItems.push({
           item: item._id,
           quantity: faker.number.int({ min: 1, max: 5 }),
-          size: faker.helpers.arrayElement(sizes),  // Random size for order item
-          color: faker.helpers.arrayElement(colors),  // Random color for order item
         });
       }
 
+      // Create order first
       const order = new Order({
-        user: user._id,
+        user: testUser._id,
         items: orderItems,
         totalAmount: faker.commerce.price(),
         orderStatus: faker.helpers.arrayElement(['Processing', 'Shipped', 'Delivered']),
@@ -168,7 +136,7 @@ for (let i = 0; i < 10; i++) {
       });
       await order.save();
 
-      // Create Payment for Order
+      // Create Payment linked to the order
       const payment = new Payment({
         order: order._id,
         amount: order.totalAmount,
@@ -177,7 +145,10 @@ for (let i = 0; i < 10; i++) {
       });
       await payment.save();
 
-      // Create Shipping for Order
+      // Update the order with the payment reference
+      order.payment = payment._id;
+
+      // Create Shipping linked to the order
       const shipping = new Shipping({
         order: order._id,
         carrier: faker.company.name(),
@@ -185,6 +156,12 @@ for (let i = 0; i < 10; i++) {
         shippingStatus: faker.helpers.arrayElement(['Shipped', 'In Transit', 'Delivered']),
       });
       await shipping.save();
+
+      // Update the order with the shipping reference
+      order.shipping = shipping._id;
+
+      // Save the order with updated references
+      await order.save();
     }
 
     console.log("Database seeded successfully!");
@@ -196,6 +173,8 @@ for (let i = 0; i < 10; i++) {
 }
 
 seedDatabase();
+
+
 
 
 

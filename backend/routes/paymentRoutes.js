@@ -3,7 +3,7 @@ const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 
 // Get a specific payment by ID
-router.get('/:id', paymentController.getPaymentById);
+router.get('/:_id', paymentController.getPaymentByOrderId);
 
 // Create a new payment
 router.post('/', paymentController.createPayment);
