@@ -3,9 +3,9 @@ const Shipping = require('../models/Shipping');
 // Get shipping details by order ID
 exports.getShippingById = async (req, res) => {
   try {
-    const shipping = await Shipping.findOne({ order: req.params.id });
+    const shipping = await Shipping.findOne({ order: req.params.orderId }); // Use orderId here
     if (!shipping) {
-      console.log(`No shipping data found for order ID: ${req.params.id}`);
+      console.log(`No shipping data found for order ID: ${req.params.orderId}`);
       return res.status(404).json({ message: "Shipping data not found" });
     }
     res.json({ shipping });
@@ -14,8 +14,6 @@ exports.getShippingById = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
-
 
 // Create shipping record
 exports.createShipping = async (req, res) => {
@@ -48,3 +46,4 @@ exports.deleteShipping = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+

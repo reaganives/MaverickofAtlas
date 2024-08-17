@@ -3,7 +3,7 @@ const router = express.Router();
 const shippingController = require('../controllers/shippingController');
 
 // Get shipping details by order ID
-router.get('/:_id', shippingController.getShippingById);
+router.get('/:orderId', shippingController.getShippingById);
 
 // Create shipping details for an order
 router.post('/', shippingController.createShipping);

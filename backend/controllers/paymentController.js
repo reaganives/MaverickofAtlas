@@ -1,12 +1,11 @@
 const Payment = require('../models/Payment');
 
-// Get payment by ID
+// Get payment details by order ID
 exports.getPaymentByOrderId = async (req, res) => {
-  const { orderId } = req.params;
   try {
-    const payment = await Payment.findOne({ order: req.params.id });
+    const payment = await Payment.findOne({ order: req.params.orderId }); // Use orderId here
     if (!payment) {
-      console.log(`No payment data found for order ID: ${req.params.id}`);
+      console.log(`No payment data found for order ID: ${req.params.orderId}`);
       return res.status(404).json({ message: "Payment data not found" });
     }
     res.json({ payment });
@@ -33,7 +32,10 @@ exports.createPayment = async (req, res) => {
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const payment = await Payment.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(payment);
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+    res.status(200).json(payment);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -42,9 +44,13 @@ exports.updatePaymentStatus = async (req, res) => {
 // Delete a payment
 exports.deletePayment = async (req, res) => {
   try {
-    await Payment.findByIdAndDelete(req.params.id);
-    res.json({ message: "Payment deleted successfully" });
+    const payment = await Payment.findByIdAndDelete(req.params.id);
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+    res.status(200).json({ message: "Payment deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
