@@ -35,6 +35,7 @@ export const useShoppingCart = () => {
     fetchCartItems();
   }, []);
 
+  // Function to handle quantity changes
   const handleQuantityChange = async (itemId: string, newQuantity: number, size: string, color: string, style: string) => {
     const userId = localStorage.getItem('userId');
     try {
@@ -57,19 +58,26 @@ export const useShoppingCart = () => {
     }
   };
 
-  const handleRemoveItem = async (itemId: string, size: string, color: string, style: string) => {
+  const handleRemoveItem = async (itemId: string) => {
     const userId = localStorage.getItem('userId');
+  
     try {
-      await axios.delete(`/cart/${userId}`, {
-        data: { itemId, size, color, style }
-      });
-      setCartItems(prevItems => prevItems.filter(item => 
-        item._id !== itemId || item.size !== size || item.color !== color || item.style !== style
-      ));
+      // First, fetch the user's cart to get the cart ID
+      const cartResponse = await axios.get(`/cart/${userId}`);
+      const cartId = cartResponse.data._id;
+  
+      // Make a DELETE request to remove the item using the cartId and itemId
+      await axios.delete(`/cart/${cartId}/item/${itemId}`);
+  
+      // Re-fetch the updated cart items after removing the item
+      const updatedCartResponse = await axios.get(`/cart/${userId}`);
+      setCartItems(updatedCartResponse.data.items); // Update the state with the updated cart items
+  
     } catch (error) {
-      console.error('Error removing item:', error);
+      console.error('Error removing item from cart:', error);
     }
   };
+  
 
   return {
     cartItems,
@@ -79,3 +87,4 @@ export const useShoppingCart = () => {
     handleRemoveItem,
   };
 };
+

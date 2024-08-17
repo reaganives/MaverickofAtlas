@@ -9,10 +9,9 @@ router.get('/:userId', cartController.getCartByUserId);
 router.post('/:userId', cartController.addItemToCart);  // POST request inherently adds an item
 
 // Remove an item from the cart
-router.delete('/:userId', cartController.removeItemFromCart);  // DELETE request for removing items
+router.delete('/:cartId/item/:itemId', cartController.deleteItem);  // DELETE request for removing items
 
 // Clear the cart
 router.patch('/:userId/clear', cartController.clearCart);  // PATCH request for clearing the cart
 
 module.exports = router;
-

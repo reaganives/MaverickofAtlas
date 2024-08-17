@@ -72,7 +72,7 @@ export default function ShoppingCart() {
 
                 {/* Remove Item Button */}
                 <button
-                  onClick={() => handleRemoveItem(item._id, size, color, style)}
+                  onClick={() => handleRemoveItem(item._id)}
                   className="text-red-500 mt-2 underline"
                 >
                   Remove
@@ -104,6 +104,7 @@ export default function ShoppingCart() {
     </div>
   );
 }
+
 
 
 

@@ -49,23 +49,31 @@ exports.addItemToCart = async (req, res) => {
   }
 };
 
-// Remove item from cart
-exports.removeItemFromCart = async (req, res) => {
-  const { itemId, size, color, style } = req.body;
+// Delete an item from the cart by cartId and itemId
+exports.deleteItem = async (req, res) => {
+  const { cartId, itemId } = req.params;
+
   try {
-    let cart = await Cart.findOne({ user: req.params.userId });
+    // Find the cart by ID
+    const cart = await Cart.findById(cartId);
 
-    // Remove the specific item with the matching size, color, and style
-    cart.items = cart.items.filter(
-      (i) => i.item.toString() !== itemId || i.size !== size || i.color !== color || i.style !== style
-    );
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
 
+    // Remove the item from the cart's items array
+    cart.items = cart.items.filter((item) => item.item.toString() !== itemId);
+
+    // Save the updated cart
     await cart.save();
-    res.json(cart);
+
+    res.status(200).json({ message: "Item removed from cart", cart });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error removing item from cart:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Clear cart
 exports.clearCart = async (req, res) => {
