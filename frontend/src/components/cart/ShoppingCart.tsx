@@ -68,7 +68,6 @@ export default function ShoppingCart() {
                     +
                   </button>
                 </div>
-
                 {/* Remove Item Button */}
                 <button
                   onClick={() => handleRemoveItem(item._id)}

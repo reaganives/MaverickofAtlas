@@ -14,4 +14,6 @@ router.delete('/:cartId/item/:itemId', cartController.deleteItem);  // DELETE re
 // Clear the cart
 router.patch('/:userId/clear', cartController.clearCart);  // PATCH request for clearing the cart
 
+router.put('/:cartId/item/:itemId/quantity', cartController.updateQuantity); // PUT request for updating the quantity of an item in the cart
+
 module.exports = router;

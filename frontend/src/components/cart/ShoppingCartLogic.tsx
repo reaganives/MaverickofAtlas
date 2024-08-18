@@ -38,18 +38,22 @@ export const useShoppingCart = () => {
   // Function to handle quantity changes
   const handleQuantityChange = async (itemId: string, newQuantity: number, size: string, color: string, style: string) => {
     const userId = localStorage.getItem('userId');
+
     try {
-      await axios.post(`/cart/${userId}`, {
-        itemId,
-        quantity: newQuantity,
-        size,
-        color,
-        style
+      // Fetch the user's cart ID
+      const cartResponse = await axios.get(`/cart/${userId}`);
+      const cartId = cartResponse.data._id;
+
+      // Update the quantity on the backend
+      await axios.put(`/cart/${cartId}/item/${itemId}/quantity`, {
+        newQuantity,
       });
-      setCartItems((prevItems) => 
-        prevItems.map(item => 
-          item._id === itemId && item.size === size && item.color === color && item.style === style 
-            ? { ...item, quantity: newQuantity } 
+
+      // Update the local state to reflect the new quantity
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.item._id === itemId && item.size === size && item.color === color && item.style === style
+            ? { ...item, quantity: newQuantity }
             : item
         )
       );

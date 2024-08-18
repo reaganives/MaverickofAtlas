@@ -126,4 +126,46 @@ exports.clearCart = async (req, res) => {
   }
 };
 
+// Update item quantity in the cart
+exports.updateQuantity = async (req, res) => {
+  const { cartId, itemId } = req.params;
+  const { newQuantity } = req.body;
+
+  try {
+    // Find the cart by ID
+    const cart = await Cart.findById(cartId);
+    if (!cart) {
+      return res.status(404).json({ error: 'Cart not found' });
+    }
+
+    // Find the item in the cart
+    const itemInCart = cart.items.find(item => item.item.toString() === itemId);
+    if (!itemInCart) {
+      return res.status(404).json({ error: 'Item not found in cart' });
+    }
+
+    // Check the inventory for the item
+    const inventory = await Inventory.findOne({ item: itemId });
+    if (!inventory) {
+      return res.status(404).json({ error: 'Item inventory not found' });
+    }
+
+    // Check if the new quantity exceeds the stock level
+    if (newQuantity > inventory.stockLevel) {
+      return res.status(400).json({ error: 'Insufficient stock available' });
+    }
+
+    // Update the quantity of the item in the cart
+    itemInCart.quantity = newQuantity;
+
+    // Save the updated cart
+    await cart.save();
+
+    res.status(200).json({ message: 'Cart updated successfully', cart });
+  } catch (err) {
+    console.error('Error updating cart quantity:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 
