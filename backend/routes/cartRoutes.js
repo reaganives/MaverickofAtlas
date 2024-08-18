@@ -6,7 +6,7 @@ const cartController = require('../controllers/cartController');
 router.get('/:userId', cartController.getCartByUserId);
 
 // Add an item to the cart
-router.post('/:userId', cartController.addItemToCart);  // POST request inherently adds an item
+router.post('/:cartId/item/:itemId', cartController.addItemToCart);  // POST request inherently adds an item
 
 // Remove an item from the cart
 router.delete('/:cartId/item/:itemId', cartController.deleteItem);  // DELETE request for removing items

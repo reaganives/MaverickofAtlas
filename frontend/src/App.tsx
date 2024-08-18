@@ -14,17 +14,18 @@ import UnprotectedRoute from './components/layout/UnprotectedRoute';
 import RequestNewPassForm from './components/login_logout/RequestNewPassForm';
 import ResetPasswordForm from './components/login_logout/ResetPasswordForm';
 import VerifyEmail from './components/registration/VerifyEmail';
+import ProductPageTest from './components/product/ProductPageTest';
 
 function App() {
   return (
     <Router>
       <Routes>
       <Route 
-        path="/productpage"
+        path="/product/:itemId"
         element={
           <>
           <div className='flex flex-col justify-center min-h-screen'>
-              <ProductPage />
+              <ProductPageTest />
               <HomeDivider />
               <div className='w-full flex justify-center mt-20'>
                 <div className='w-full max-w-screen-lg'>

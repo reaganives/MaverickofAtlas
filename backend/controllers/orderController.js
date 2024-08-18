@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Inventory = require('../models/Inventory');
 
 // Get all orders
 exports.getOrders = async (req, res) => {
@@ -89,4 +90,30 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ error: 'Server error. Could not delete the order.' });
   }
 };
+
+// Decrease inventory stock after order is placed
+exports.completeOrder = async (req, res) => {
+  const { userId, items } = req.body;
+
+  try {
+    // Loop through each item in the order and decrement its stock level
+    for (const orderItem of items) {
+      const inventory = await Inventory.findOne({ item: orderItem.item });
+      if (inventory) {
+        inventory.stockLevel -= orderItem.quantity;
+        if (inventory.stockLevel < 0) inventory.stockLevel = 0; // Ensure stock doesn't go negative
+        await inventory.save();
+      }
+    }
+
+    // Create and save the order
+    const order = new Order({ user: userId, items });
+    await order.save();
+
+    res.status(201).json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 

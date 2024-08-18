@@ -1,32 +1,63 @@
 const Cart = require('../models/Cart');
+const Item = require('../models/Item');
+const Inventory = require('../models/Inventory');
+const mongoose = require('mongoose');
+const Joi = require('joi');
+
+const addItemToCartSchema = Joi.object({
+  userId: Joi.string().required(),
+  itemId: Joi.string().required(),
+  quantity: Joi.number().min(1).required(),
+  size: Joi.string().required(),
+  color: Joi.string().required(),
+  style: Joi.string().required(),
+});
 
 // Get cart by user ID
-// In your cartController.js
 exports.getCartByUserId = async (req, res) => {
   try {
-    console.log("Received userId:", req.params.userId); // Check if userId is correct
-
     const cart = await Cart.findOne({ user: req.params.userId }).populate('items.item');
     if (!cart) {
       return res.status(404).json({ error: "Cart not found" });
     }
-
-    console.log("Cart found:", cart); // Check what is returned
-
     res.json(cart);
   } catch (err) {
-    console.error("Error fetching cart:", err);  // Log the error in detail
+    console.error("Error fetching cart:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
 // Add item to cart
 exports.addItemToCart = async (req, res) => {
-  const { itemId, quantity, size, color, style } = req.body;
+  const { userId, itemId, quantity, size, color, style } = req.body;
+
+  // Validate the request data using Joi
+  const { error } = addItemToCartSchema.validate({ userId, itemId, quantity, size, color, style });
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
   try {
-    let cart = await Cart.findOne({ user: req.params.userId });
+    // Ensure userId is a valid ObjectId
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    // Find the inventory for the requested item
+    const inventory = await Inventory.findOne({ item: itemId });
+    if (!inventory) {
+      return res.status(404).json({ error: 'Item inventory not found' });
+    }
+
+    // Check if the requested quantity exceeds available stock
+    if (inventory.stockLevel < quantity) {
+      return res.status(400).json({ error: 'Insufficient stock available' });
+    }
+
+    // Check if a cart already exists for the user
+    let cart = await Cart.findOne({ user: userObjectId });
     if (!cart) {
-      cart = new Cart({ user: req.params.userId, items: [] });
+      // Create a new cart if none exists for the user
+      cart = new Cart({ user: userObjectId, items: [] });
     }
 
     // Check if the item with the same size, color, and style already exists in the cart
@@ -35,19 +66,28 @@ exports.addItemToCart = async (req, res) => {
     );
 
     if (existingItem) {
-      // Update quantity if the item exists
+      // Check if adding more would exceed available stock
+      if (existingItem.quantity + quantity > inventory.stockLevel) {
+        return res.status(400).json({ error: 'Adding this quantity would exceed available stock' });
+      }
+
+      // Update the quantity of the existing item in the cart
       existingItem.quantity += quantity;
     } else {
-      // Add new item if it doesn't exist
+      // Add the new item to the cart
       cart.items.push({ item: itemId, quantity, size, color, style });
     }
 
+    // Save the updated cart
     await cart.save();
-    res.json(cart);
+
+    res.status(200).json({ message: 'Item added to cart', cart });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error adding item to cart:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 // Delete an item from the cart by cartId and itemId
 exports.deleteItem = async (req, res) => {
@@ -74,7 +114,6 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
-
 // Clear cart
 exports.clearCart = async (req, res) => {
   try {
@@ -86,4 +125,5 @@ exports.clearCart = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 

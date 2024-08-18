@@ -14,9 +14,12 @@ exports.getItems = async (req, res) => {
 exports.getItemById = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
-    res.json(item);
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    res.json({ item });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
