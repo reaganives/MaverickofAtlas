@@ -5,8 +5,11 @@ const itemController = require('../controllers/itemController');
 // Get all items
 router.get('/', itemController.getItems);
 
+// Get new arrivals (this needs to be before the dynamic route)
+router.get('/newarrivals', itemController.getNewArrivals);
+
 // Get an item by ID
-router.get('/:id', itemController.getItemById);
+router.get('/:itemId', itemController.getItemById);
 
 // Create a new item
 router.post('/', itemController.createItem);

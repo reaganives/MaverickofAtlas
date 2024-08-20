@@ -5,6 +5,7 @@ import DropdownMenu from '../layout/DropdownMenu';
 import ProductFull from './ProductFull';
 import HomeDivider from '../layout/HomeDivider';
 import Footer from '../layout/Footer';
+import ProductPageTest from './ProductPageTest';
 
 
 export default function ProductPage () {

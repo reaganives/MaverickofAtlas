@@ -1,12 +1,41 @@
 const Inventory = require('../models/Inventory');
 
 // Get inventory by item ID
-exports.getInventoryByItemId = async (req, res) => {
+exports.getInventoryById = async (req, res) => {
   try {
-    const inventory = await Inventory.findOne({ item: req.params.itemId });
-    res.json(inventory);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const inventoryId = req.params.inventoryId;  // Ensure this is an ObjectId string
+    const inventory = await Inventory.findById(inventoryId);  // This expects a valid ObjectId
+
+    if (!inventory) {
+      return res.status(404).json({ message: 'Inventory not found' });
+    }
+
+    res.json({ inventory });
+  } catch (error) {
+    console.error('Error fetching inventory by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Get inventory by Color and Size
+exports.getInventoryByColorAndSize = async (req, res) => {
+  try {
+    const { item, color, size } = req.query;
+
+    // Find the inventory based on item, color, and size
+    const inventory = await Inventory.findOne({
+      items: item,  // Array of item IDs in the inventory
+      color: color,
+      size: size
+    });
+
+    if (!inventory) {
+      return res.status(404).json({ message: 'Inventory not found for the specified item, color, and size.' });
+    }
+
+    return res.status(200).json({ inventory });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 

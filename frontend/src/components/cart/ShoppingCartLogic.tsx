@@ -4,50 +4,67 @@ import axios from '../../axiosConfig';
 export const useShoppingCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [emptyCartMessage, setEmptyCartMessage] = useState('');  // State for empty cart message
+  const [emptyCartMessage, setEmptyCartMessage] = useState('');
 
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('userId');
 
+  const fetchCartItems = async () => {
     if (!userId) {
-      // If user is not logged in or no userId is found, show empty cart message
       setEmptyCartMessage('Your cart is currently empty.');
-      setLoading(false);  // Stop loading since there's no cart to fetch
+      setLoading(false);
       return;
     }
 
-    const fetchCartItems = async () => {
-      try {
-        const response = await axios.get(`/cart/${userId}`);
-        if (response.data.items.length === 0) {
-          setEmptyCartMessage('Your cart is currently empty.');
-        } else {
-          setCartItems(response.data.items);  // Set cart items from backend response
-        }
-      } catch (error) {
-        console.error('Error fetching cart data:', error);
-        setEmptyCartMessage('Failed to load cart items.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const response = await axios.get(`/cart/${userId}`);
+      const cartData = response.data;
 
+      // Check if the cart is empty
+      if (cartData.items.length === 0) {
+        setEmptyCartMessage('Your cart is currently empty.');
+      } else {
+        // For each cart item, fetch the corresponding inventories for the item
+        const populatedCartItems = await Promise.all(
+          cartData.items.map(async (cartItem) => {
+            const itemId = cartItem.item._id;
+            const itemResponse = await axios.get(`/items/${itemId}`);
+            const itemData = itemResponse.data;
+
+            // Ensure inventories are defined before finding the matching inventory
+            const inventory =
+              itemData.inventories?.find(
+                (inv) => inv.size === cartItem.size && inv.color === cartItem.color
+              ) || null; // Set inventory to null if not found
+
+            return {
+              ...cartItem,
+              item: itemData, // Include the populated item data
+              inventory, // Include the corresponding inventory or null
+            };
+          })
+        );
+
+        setCartItems(populatedCartItems);
+      }
+    } catch (error) {
+      console.error('Error fetching cart data:', error);
+      setEmptyCartMessage('Failed to load cart items.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCartItems();
   }, []);
 
   // Function to handle quantity changes
-  const handleQuantityChange = async (itemId: string, newQuantity: number, size: string, color: string, style: string) => {
-    const userId = localStorage.getItem('userId');
-
+  const handleQuantityChange = async (itemId, newQuantity, size, color, style) => {
     try {
-      // Fetch the user's cart ID
       const cartResponse = await axios.get(`/cart/${userId}`);
       const cartId = cartResponse.data._id;
 
-      // Update the quantity on the backend
-      await axios.put(`/cart/${cartId}/item/${itemId}/quantity`, {
-        newQuantity,
-      });
+      await axios.put(`/cart/${cartId}/item/${itemId}/quantity`, { newQuantity });
 
       // Update the local state to reflect the new quantity
       setCartItems((prevItems) =>
@@ -62,26 +79,20 @@ export const useShoppingCart = () => {
     }
   };
 
-  const handleRemoveItem = async (itemId: string) => {
-    const userId = localStorage.getItem('userId');
-  
+  // Function to handle item removal
+  const handleRemoveItem = async (itemId) => {
     try {
-      // First, fetch the user's cart to get the cart ID
       const cartResponse = await axios.get(`/cart/${userId}`);
       const cartId = cartResponse.data._id;
-  
-      // Make a DELETE request to remove the item using the cartId and itemId
+
       await axios.delete(`/cart/${cartId}/item/${itemId}`);
-  
+
       // Re-fetch the updated cart items after removing the item
-      const updatedCartResponse = await axios.get(`/cart/${userId}`);
-      setCartItems(updatedCartResponse.data.items); // Update the state with the updated cart items
-  
+      fetchCartItems();
     } catch (error) {
       console.error('Error removing item from cart:', error);
     }
   };
-  
 
   return {
     cartItems,
@@ -91,4 +102,9 @@ export const useShoppingCart = () => {
     handleRemoveItem,
   };
 };
+
+
+
+
+
 

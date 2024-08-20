@@ -1,6 +1,5 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import ProductPage from './components/product/ProductPage';
 import LoginPage from './components/login_logout/LoginPage';
 import RegistrationPage from './components/registration/RegistrationPage';
 import HomePage from './components/home/HomePage';
@@ -14,18 +13,18 @@ import UnprotectedRoute from './components/layout/UnprotectedRoute';
 import RequestNewPassForm from './components/login_logout/RequestNewPassForm';
 import ResetPasswordForm from './components/login_logout/ResetPasswordForm';
 import VerifyEmail from './components/registration/VerifyEmail';
-import ProductPageTest from './components/product/ProductPageTest';
+import ProductPage from './components/product/ProductPage';
 
 function App() {
   return (
     <Router>
       <Routes>
       <Route 
-        path="/product/:itemId"
+        path="/collections/:collectionName/"
         element={
           <>
           <div className='flex flex-col justify-center min-h-screen'>
-              <ProductPageTest />
+              <ProductPage />
               <HomeDivider />
               <div className='w-full flex justify-center mt-20'>
                 <div className='w-full max-w-screen-lg'>

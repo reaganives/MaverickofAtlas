@@ -41,9 +41,9 @@ export default function ShoppingCart() {
               <div>
                 <h2 className="font-semibold font-noto text-lg">{item.name}</h2>
                 <div className="flex flex-col gap-1">
-                  <p className="mt-1 text-sm font-noto text-zinc-400">Size: <span className="font-semibold font-noto text-ivyPurple">{size}</span></p>
-                  <p className="text-sm font-noto text-zinc-400">Color: <span className="font-semibold font-noto text-ivyPurple">{color}</span></p>
-                  <p className="text-sm font-noto text-zinc-400">Style: <span className="font-noto text-ivyPurple">{style}</span></p>
+                  <p className="mt-1 text-sm font-noto text-zinc-400">Size: <span className="font-semibold font-noto text-ivyPurple">{item.size}</span></p>
+                  <p className="text-sm font-noto text-zinc-400">Color: <span className="font-semibold font-noto text-ivyPurple">{item.color}</span></p>
+                  <p className="text-sm font-noto text-zinc-400">Style: <span className="font-noto text-ivyPurple">{item.style}</span></p>
                 </div>
 
                 {/* Price and Quantity */}

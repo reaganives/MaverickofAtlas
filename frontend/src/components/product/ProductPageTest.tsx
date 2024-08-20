@@ -1,78 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';  // For getting route parameters
-import axios from '../../axiosConfig';
-import AddToCartButton from './AddToCartButton';
 
-interface Item {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  size: string;
-  color: string;
-  style: string;
-}
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from '../../axiosConfig';  // Import your Axios configuration
 
-const ProductPageTest: React.FC = () => {
-  const { itemId } = useParams<{ itemId: string }>();  // Get the itemId from the URL
-  const [product, setProduct] = useState<Item | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+function ProductPage() {
+  const { category, itemId } = useParams();
+  const [product, setProduct] = useState(null);
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
+    // Fetch the product data using Axios
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`/items/${itemId}`);  // Make sure this is the correct backend route
-        setProduct(response.data.item);
-        setLoading(false);
+        const response = await axios.get(`/items/${itemId}`);
+        setProduct(response.data);
+        setSelectedColor(response.data.color); // Default to the item's color
       } catch (error) {
         console.error('Error fetching product:', error);
-        setError('Failed to load product data.');
-        setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [itemId]);  // Fetch product when itemId changes
+  }, [itemId]);
 
-  if (loading) {
-    return <p>Loading product details...</p>;
-  }
+  const handleColorChange = (event) => {
+    const color = event.target.value;
+    setSelectedColor(color);
 
-  if (error) {
-    return <p>{error}</p>;
-  }
+    // Reset size and selected item when color changes
+    setSelectedSize('');
+    setSelectedItem(null);
+  };
+
+  const handleSizeChange = (event) => {
+    const size = event.target.value;
+    setSelectedSize(size);
+
+    // Find the exact item that matches the selected color and size
+    const item = product.items.find(item => item.color === selectedColor && item.size === size);
+    setSelectedItem(item);
+  };
+
+  const handleAddToCart = async () => {
+    if (!selectedItem) {
+      alert('Please select a color and size.');
+      return;
+    }
+
+    try {
+      // Example API call to add item to cart using Axios
+      await axios.post('/cart', { itemId: selectedItem._id, quantity: 1 });
+      console.log(`Item added to cart:`, selectedItem);
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+    }
+  };
 
   return (
-    <div className="product-page w-full max-w-4xl mx-auto p-8">
-      {product ? (
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Product Image */}
-          <div className="w-full md:w-1/2">
-            <img src={product.imageUrl} alt={product.name} className="w-full h-auto object-cover" />
-          </div>
+    <div>
+      <h1>{product?.name}</h1>
+      <img src={selectedItem?.imageUrl} alt={selectedItem?.name || 'Product'} />
 
-          {/* Product Details */}
-          <div className="w-full md:w-1/2">
-            <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
-            <p className="text-lg mb-2">${product.price}</p>
-            <p className="text-md mb-4">{product.description}</p>
+      {/* Dropdown for selecting color */}
+      <label>
+        Color:
+        <select value={selectedColor} onChange={handleColorChange}>
+          <option value="">Select a color</option>
+          {product?.availableColors.map(color => (
+            <option key={color} value={color}>
+              {color}
+            </option>
+          ))}
+        </select>
+      </label>
 
-            {/* Add to Cart Button */}
-            <AddToCartButton
-              itemId={product._id}
-              size={product.size}
-              color={product.color}
-              style={product.style}
-            />
-          </div>
-        </div>
-      ) : (
-        <p>Product not found.</p>
+      {/* Dropdown for selecting size */}
+      <label>
+        Size:
+        <select value={selectedSize} onChange={handleSizeChange} disabled={!selectedColor}>
+          <option value="">Select a size</option>
+          {product?.availableSizes.map(size => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {/* Display stock level */}
+      {selectedItem && (
+        <p>
+          Stock available: {selectedItem?.inventory?.stockLevel || 'Out of Stock'}
+        </p>
       )}
+
+      <button onClick={handleAddToCart} disabled={!selectedSize || !selectedItem?.inventory?.stockLevel}>
+        Add to Cart
+      </button>
     </div>
   );
-};
+}
 
-export default ProductPageTest;
+export default ProductPage;
