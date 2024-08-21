@@ -6,21 +6,13 @@ export const useShoppingCart = () => {
   const [loading, setLoading] = useState(true);
   const [emptyCartMessage, setEmptyCartMessage] = useState('');
 
-  const userId = localStorage.getItem('userId');
-
   const fetchCartItems = async () => {
-    if (!userId) {
-      setEmptyCartMessage('Your cart is currently empty.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await axios.get(`/cart/${userId}`);
+      const response = await axios.get(`/cart`);  // No need for userId, backend will infer it
       const cartData = response.data;
 
       // Check if the cart is empty
-      if (cartData.items.length === 0) {
+      if (!cartData.items || cartData.items.length === 0) {
         setEmptyCartMessage('Your cart is currently empty.');
       } else {
         // For each cart item, fetch the corresponding inventories for the item
@@ -61,7 +53,7 @@ export const useShoppingCart = () => {
   // Function to handle quantity changes
   const handleQuantityChange = async (itemId, newQuantity, size, color, style) => {
     try {
-      const cartResponse = await axios.get(`/cart/${userId}`);
+      const cartResponse = await axios.get(`/cart`);
       const cartId = cartResponse.data._id;
 
       await axios.put(`/cart/${cartId}/item/${itemId}/quantity`, { newQuantity });
@@ -82,7 +74,7 @@ export const useShoppingCart = () => {
   // Function to handle item removal
   const handleRemoveItem = async (itemId) => {
     try {
-      const cartResponse = await axios.get(`/cart/${userId}`);
+      const cartResponse = await axios.get(`/cart`);
       const cartId = cartResponse.data._id;
 
       await axios.delete(`/cart/${cartId}/item/${itemId}`);
@@ -102,6 +94,7 @@ export const useShoppingCart = () => {
     handleRemoveItem,
   };
 };
+
 
 
 

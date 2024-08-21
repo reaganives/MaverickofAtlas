@@ -4,18 +4,18 @@ const Cart = require('../models/Cart');
 const Item = require('../models/Item');
 const Inventory = require('../models/Inventory');
 
+// Validation schema for adding an item to the cart
 const addItemToCartSchema = Joi.object({
-  userId: Joi.string().required(),
   collectionId: Joi.string().required(),
   quantity: Joi.number().min(1).required(),
   size: Joi.string().required(),
   color: Joi.string().required(),
 });
 
-// Get cart by user ID
-exports.getCartByUserId = async (req, res) => {
+// Get cart for authenticated user
+exports.getCart = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;  // Use the authenticated user's ID from the token
     
     const cart = await Cart.findOne({ user: userId }).populate('items.item');
     
@@ -30,20 +30,18 @@ exports.getCartByUserId = async (req, res) => {
   }
 };
 
-// Add item to cart by finding the correct inventory and picking the first item
+// Add item to cart for authenticated user
 exports.addItemToCart = async (req, res) => {
-  const { userId, collectionId, color, size, quantity } = req.body;
+  const { collectionId, color, size, quantity } = req.body;
+  const userId = req.user.id;  // Get user ID from token
 
-  // Validate the request data (using Joi or custom validation)
-  const { error } = addItemToCartSchema.validate({ userId, collectionId, color, size, quantity });
+  // Validate the request data
+  const { error } = addItemToCartSchema.validate({ collectionId, color, size, quantity });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
 
   try {
-    // Ensure userId is a valid ObjectId
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-
     // Find the correct inventory by collection, color, and size
     const inventory = await Inventory.findOne({
       collection: collectionId,
@@ -51,45 +49,37 @@ exports.addItemToCart = async (req, res) => {
       size,
     });
 
-    // If no inventory is found or there are no items, return an error
     if (!inventory || inventory.items.length === 0) {
       return res.status(404).json({ error: 'No inventory available for the selected options' });
     }
 
-    // Check if the requested quantity exceeds the available stock
     if (inventory.stockLevel < quantity) {
       return res.status(400).json({ error: 'Insufficient stock available' });
     }
 
-    // Pick the first item from the inventory's items array
     const itemToAdd = inventory.items[0];
 
-    // Find the cart for the user, or create one if it doesn't exist
-    let cart = await Cart.findOne({ user: userObjectId });
+    // Find the user's cart or create one if it doesn't exist
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
-      cart = new Cart({ user: userObjectId, items: [] });
+      cart = new Cart({ user: userId, items: [] });
     }
 
-    // Check if the item with the same size and color already exists in the cart
+    // Check if the item already exists in the cart
     const existingItem = cart.items.find(cartItem => cartItem.item.toString() === itemToAdd.toString());
 
     if (existingItem) {
-      // Check if adding more would exceed available stock
       if (existingItem.quantity + quantity > inventory.stockLevel) {
         return res.status(400).json({ error: 'Adding this quantity would exceed available stock' });
       }
-
-      // Update the quantity of the existing item in the cart
-      existingItem.quantity += quantity;
+      existingItem.quantity += quantity;  // Update quantity
     } else {
-      // Add the new item to the cart
-      cart.items.push({ item: itemToAdd, quantity });
+      cart.items.push({ item: itemToAdd, quantity });  // Add new item to the cart
     }
 
-    // Save the updated cart
     await cart.save();
 
-    // Decrease the stock level in the inventory
+    // Update inventory stock
     inventory.stockLevel -= quantity;
     await inventory.save();
 
@@ -100,29 +90,25 @@ exports.addItemToCart = async (req, res) => {
   }
 };
 
-
-// Remove item from cart
+// Remove item from cart for authenticated user
 exports.removeItemFromCart = async (req, res) => {
   try {
-    const { cartId, itemId } = req.params;
+    const userId = req.user.id;  // Get the authenticated user's ID
+    const { itemId } = req.params;
 
-    // Find the cart
-    const cart = await Cart.findById(cartId);
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    // Find and remove the item from the cart
     const itemIndex = cart.items.findIndex(item => item.item.toString() === itemId);
     if (itemIndex === -1) {
       return res.status(404).json({ message: 'Item not found in cart' });
     }
 
-    // Remove the item from the cart
     cart.items.splice(itemIndex, 1);
-
-    // Save the cart
     await cart.save();
+
     return res.status(200).json({ message: 'Item removed', cart });
   } catch (error) {
     console.error('Error removing item from cart:', error);
@@ -130,59 +116,54 @@ exports.removeItemFromCart = async (req, res) => {
   }
 };
 
-// Clear cart
+// Clear cart for authenticated user
 exports.clearCart = async (req, res) => {
   try {
-    let cart = await Cart.findOne({ user: req.params.userId });
-    cart.items = [];
-    await cart.save();
-    res.json(cart);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+    const userId = req.user.id;  // Get the authenticated user's ID
 
-// Update quantity of an item in the cart
-exports.updateItemQuantity = async (req, res) => {
-  try {
-    const { cartId, itemId } = req.params;
-    const { newQuantity } = req.body;
+    let cart = await Cart.findOne({ user: userId });
 
-    // Find the cart
-    const cart = await Cart.findById(cartId);
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    // Find the item in the cart
+    cart.items = [];
+    await cart.save();
+
+    res.status(200).json({ message: 'Cart cleared', cart });
+  } catch (err) {
+    console.error('Error clearing cart:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Update quantity of an item in the cart for authenticated user
+exports.updateItemQuantity = async (req, res) => {
+  try {
+    const userId = req.user.id;  // Get the authenticated user's ID
+    const { itemId } = req.params;
+    const { newQuantity } = req.body;
+
+    let cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
     const cartItem = cart.items.find(item => item.item.toString() === itemId);
     if (!cartItem) {
       return res.status(404).json({ message: 'Item not found in cart' });
     }
 
-    // Find the item in the database with its inventory reference
     const item = await Item.findById(itemId).populate('inventory');
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
+    if (!item || !item.inventory) {
+      return res.status(400).json({ message: 'Item or inventory not found' });
     }
 
-    // Check if the item's inventory exists
-    if (!item.inventory) {
-      return res.status(400).json({ message: 'Inventory not associated with the item' });
+    if (newQuantity > item.inventory.stockLevel) {
+      return res.status(400).json({ message: `Insufficient stock available. Only ${item.inventory.stockLevel} items left.` });
     }
 
-    // Get the inventory stock level
-    const inventoryStockLevel = item.inventory.stockLevel;
-
-    // Check if the new quantity exceeds available stock
-    if (newQuantity > inventoryStockLevel) {
-      return res.status(400).json({ message: `Insufficient stock available. Only ${inventoryStockLevel} items left.` });
-    }
-
-    // Update the quantity in the cart
     cartItem.quantity = newQuantity;
-
-    // Save the cart with the updated quantity
     await cart.save();
 
     return res.status(200).json({ message: 'Quantity updated', cart });
@@ -191,6 +172,7 @@ exports.updateItemQuantity = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 
 

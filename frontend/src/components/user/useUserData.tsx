@@ -46,48 +46,72 @@ export const useUserData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUserDataAndOrders = async () => {
-      try {
-        // Fetch user data
-        const userResponse = await axios.get('/users/me');
-        const user = userResponse.data.user;
-        setUserData(user);
+  const fetchUserDataAndOrders = async () => {
+    try {
+      // Fetch user data
+      const userResponse = await axios.get('/auth/me');
+      const user = userResponse.data.user;
+      setUserData(user);
 
+      try {
         // Fetch user orders
         const orderResponse = await axios.get(`/orders/user/${user._id}`);
-        const orders = orderResponse.data.orders;
+        const orders: Order[] = orderResponse.data.orders || [];
 
-        // Fetch detailed items, shipping, and payment for each order
-        const orderDetailsPromises = orders.map(async (order: Order) => {
-          try {
-            // Fetch shipping and payment details
-            const shippingUrl = `/shipping/${order._id}`;
-            const paymentUrl = `/payments/${order._id}`;
-            const shippingResponse = await axios.get(shippingUrl);
-            const paymentResponse = await axios.get(paymentUrl);
+        if (orders.length === 0) {
+          setOrderHistory([]); // Handle case where there are no orders
+        } else {
+          // Fetch detailed items, shipping, and payment for each order
+          const orderDetailsPromises = orders.map(async (order: Order) => {
+            try {
+              const [shippingResponse, paymentResponse] = await Promise.all([
+                axios.get(`/shipping/${order._id}`),
+                axios.get(`/payments/${order._id}`),
+              ]);
 
-            // Populate items in the order (we assume items are already populated in the order response)
-            return {
-              ...order,
-              shipping: shippingResponse.data.shipping,
-              payment: paymentResponse.data.payment,
-            };
-          } catch (err) {
-            console.error(`Error fetching shipping or payment for order ${order._id}`, err);
-            return { ...order }; // Return the order even if shipping/payment fails
-          }
-        });
+              return {
+                ...order,
+                shipping: shippingResponse.data.shipping,
+                payment: paymentResponse.data.payment,
+              };
+            } catch (err) {
+              console.error(`Error fetching shipping or payment for order ${order._id}`, err);
+              return { ...order }; // Return the order even if shipping/payment fails
+            }
+          });
 
-        const detailedOrders = await Promise.all(orderDetailsPromises);
-        setOrderHistory(detailedOrders);
-      } catch (err) {
-        setError('Failed to load user, order, shipping, or payment data');
-      } finally {
-        setLoading(false);
+          const detailedOrders = await Promise.all(orderDetailsPromises);
+          setOrderHistory(detailedOrders);
+        }
+      } catch (orderError) {
+        if (orderError.response && orderError.response.status === 404) {
+          setOrderHistory([]); // No orders found
+        } else {
+          throw orderError; // Re-throw other errors
+        }
       }
-    };
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        // If 401 Unauthorized, it means the access token is likely expired, and we should handle the refresh flow
+        try {
+          // Attempt to refresh the token
+          await axios.post('/auth/refresh-token');
+          // Retry fetching user data and orders after refreshing the token
+          await fetchUserDataAndOrders();
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
+          setError('Session expired. Please log in again.');
+        }
+      } else {
+        console.error('Error fetching user or order data:', err);
+        setError('Failed to load user or order data');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUserDataAndOrders();
   }, []);
 

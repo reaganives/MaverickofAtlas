@@ -7,7 +7,7 @@ export default function ShoppingCart() {
   const { cartItems, loading, emptyCartMessage, handleQuantityChange, handleRemoveItem } = useShoppingCart();
 
   if (loading) {
-    return <p>Loading cart items...</p>;
+    return <div className="flex justify-center mt-20 mb-96 w-full"><p className="text-ivyPurple text-xs py-.5 px-2 tracking-widest font-roboto">Loading Cart...</p></div>;
   }
 
   return (

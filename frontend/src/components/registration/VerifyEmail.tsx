@@ -11,16 +11,13 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verifyAccount = async () => {
       try {
+        // Make the API request to verify the email
         const response = await axios.get(`/auth/verify-email/${token}`);
         
-        // Ensure both token and userId are stored in localStorage
-        const { token: authToken, user } = response.data;
-        
-        if (authToken && user?._id) {
-          // Store both token and userId in localStorage
-          localStorage.setItem('token', authToken);
-          localStorage.setItem('userId', user._id);
+        // The server will handle storing the token in HttpOnly cookies
+        const { user } = response.data;
 
+        if (user?._id) {
           // Set success message
           setSuccessMessage('Verification successful! You are now logged in.');
           
@@ -50,6 +47,7 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
+
 
 
 

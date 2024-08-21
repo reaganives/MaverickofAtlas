@@ -32,15 +32,9 @@ exports.getItemById = async (req, res) => {
 
 // Get new arrivals
 exports.getNewArrivals = async (req, res) => {
-  try {
-    // Log to confirm the request hits the controller
-    console.log('Fetching new arrivals...');
-    
+  try {    
     // Find all items where newArrival is true
     const newArrivals = await Item.find({ newArrival: true }).populate('collection');
-
-    // Log to confirm items are being fetched
-    console.log('New Arrivals found:', newArrivals);
 
     // If no new arrivals are found, send an appropriate message
     if (!newArrivals || newArrivals.length === 0) {

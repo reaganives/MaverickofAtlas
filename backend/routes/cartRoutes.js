@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const cartController = require('../controllers/cartController');
-
-
-// Add an item to the cart
-router.post('/add', cartController.addItemToCart);  // POST request inherently adds an item
+const verifyToken = require('../middleware/verifyToken');
 
 // Get the cart for a user by user ID
-router.get('/:userId', cartController.getCartByUserId);
+router.get('/', verifyToken, cartController.getCart);
+
+// Add an item to the cart
+router.post('/add', verifyToken, cartController.addItemToCart);  // POST request inherently adds an item
 
 // Remove an item from the cart
-router.delete('/:cartId/item/:itemId', cartController.removeItemFromCart);  // DELETE request for removing items
+router.delete('/:cartId/item/:itemId', verifyToken, cartController.removeItemFromCart);  // DELETE request for removing items
 
 // Clear the cart
-router.patch('/:userId/clear', cartController.clearCart);  // PATCH request for clearing the cart
+router.patch('/:userId/clear', verifyToken, cartController.clearCart);  // PATCH request for clearing the cart
 
-router.put('/:cartId/item/:itemId/quantity', cartController.updateItemQuantity); // PUT request for updating the quantity of an item in the cart
+router.put('/:cartId/item/:itemId/quantity', verifyToken, cartController.updateItemQuantity); // PUT request for updating the quantity of an item in the cart
 
 module.exports = router;

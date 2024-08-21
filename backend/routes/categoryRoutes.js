@@ -5,6 +5,8 @@ const categoryController = require('../controllers/categoryController');
 // Get all categories
 router.get('/', categoryController.getCategories);
 
+router.get('/:categoryName/:collectionName', categoryController.getItemsByCollection);
+
 // Get a specific category by ID
 router.get('/:id', categoryController.getCategoryById);
 

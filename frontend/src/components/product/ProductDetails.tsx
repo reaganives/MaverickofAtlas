@@ -203,20 +203,20 @@ const ProductDetails: React.FC = () => {
           </div>
 
           {/* Add to Cart Button */}
-          <div className="w-100 flex flex-col justify-center">
-            <div className="flex justify-center p-2">
-              <div className="flex justify-center pt-2 px-5 rounded-full bg-white w-1/2">
+          <div className="w-full flex flex-col justify-center items-center">
+            <div className="flex w-full justify-center p-2">
+              <div className="flex justify-center pt-2 px-5 rounded-full bg-white w-full">
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedSize || !selectedColor}
-                  className="bg-ivyPurple text-white px-6 py-4 rounded-lg w-full"
+                  className="bg-ivyPurple text-white px-6 py-4 rounded-md w-1/2"
                 >
                   Add to Cart
                 </button>
               </div>
             </div>
 
-            <div className="flex justify-center mt-1 p-2">
+            <div className="flex justify-center mt-1 p-2 w-full">
               <button className="w-1/4 rounded-md shadow-md font-noto tracking-wider bg-orange-300/90 hover:bg-orange-300/80 hover:scale-105 transition text-white py-2 text-xs">
                 Contact Us
               </button>

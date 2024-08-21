@@ -4,13 +4,19 @@ const express = require('express');
 const app = express();
 const connectDB = require('./config/db');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 // Connect to MongoDB
 connectDB();  // Ensure the database is connected before starting the server
 
 // Middleware
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',  // The frontend origin
+    credentials: true,  // Allow credentials (cookies) to be sent
+  }));
+
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');

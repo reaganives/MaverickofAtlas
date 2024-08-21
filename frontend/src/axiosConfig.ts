@@ -6,21 +6,10 @@ const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,  // This ensures that cookies are sent with requests
 });
 
-// Add a request interceptor to include the token
-instance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');  // Get token from localStorage
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;  // Attach token to Authorization header
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// No need for interceptors to handle tokens in headers anymore because the tokens are in cookies
+// Any manual token injection logic in headers has been removed.
 
 export default instance;
-

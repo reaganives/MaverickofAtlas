@@ -14,11 +14,28 @@ import RequestNewPassForm from './components/login_logout/RequestNewPassForm';
 import ResetPasswordForm from './components/login_logout/ResetPasswordForm';
 import VerifyEmail from './components/registration/VerifyEmail';
 import ProductPage from './components/product/ProductPage';
+import CollectionsPage from './components/categories/CollectionsPage';
 
 function App() {
   return (
     <Router>
       <Routes>
+      <Route 
+        path="/categories/:categoryName/:collectionName/"
+        element={
+          <>
+          <div className='flex flex-col justify-center min-h-screen'>
+              <CollectionsPage />
+              <HomeDivider />
+              <div className='w-full flex justify-center mt-20'>
+                <div className='w-full max-w-screen-lg'>
+                  <Footer />
+                </div>
+              </div>
+          </div>
+          </>
+        }
+        />
       <Route 
         path="/collections/:collectionName/"
         element={

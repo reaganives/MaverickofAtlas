@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import { useNavigate } from 'react-router-dom';
+import axios from '../../axiosConfig';
 import ShippingBanner from './ShippingBanner';
 
 export default function Navbar() {
@@ -8,17 +9,29 @@ export default function Navbar() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if the token exists in localStorage to determine if the user is logged in
-        const token = localStorage.getItem('token');
-        setIsAuthenticated(!!token);  // Set to true if token exists, false otherwise
+        // Make an API call to check if the user is authenticated
+        const checkAuthStatus = async () => {
+            try {
+                const response = await axios.get('/auth/check-auth');
+                setIsAuthenticated(response.data.isAuthenticated);  // Set to true if authenticated
+            } catch (error) {
+                console.error('Error checking authentication status:', error);
+                setIsAuthenticated(false);
+            }
+        };
+
+        checkAuthStatus();
     }, []);
 
-    const handleLogout = () => {
-        // Remove the token from localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        setIsAuthenticated(false);  // Update authentication state
-        navigate('/login');  // Redirect to login page
+    const handleLogout = async () => {
+        try {
+            // Make an API call to log the user out (clear cookies server-side)
+            await axios.post('/auth/logout');
+            setIsAuthenticated(false);  // Update authentication state
+            navigate('/login');  // Redirect to login page
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     };
 
     const handleRedirect = () => {
@@ -40,17 +53,16 @@ export default function Navbar() {
                     {/* Conditionally render Login/Logout based on authentication state */}
                     {isAuthenticated ? (
                         <>
-                        <li className="hover:text-ivyPurple/50 transition-all cursor-pointer bg-orange-200">
-                            <a href="/account"> Account</a>
-                        </li>
-                        <div className="flex items-center">
+                            <li className="hover:text-ivyPurple/50 transition-all cursor-pointer bg-orange-200">
+                                <a href="/account"> Account</a>
+                            </li>
+                            <div className="flex items-center">
                                 <div className="bg-zinc-700 w-px h-3"></div>
-                        </div>
-                        <li className="hover:text-ivyPurple/50 transition-all mr-8" onClick={handleLogout}>
+                            </div>
+                            <li className="hover:text-ivyPurple/50 transition-all mr-8" onClick={handleLogout}>
                                 <a href="/" className="bg-blue-200/80">Logout</a>
-                        </li>
+                            </li>
                         </>
-                        
                     ) : (
                         <>
                             <li className="hover:text-ivyPurple/50 transition-all">
@@ -88,7 +100,3 @@ export default function Navbar() {
         </div>
     );
 }
-
-
-
-

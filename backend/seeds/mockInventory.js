@@ -20,6 +20,37 @@ mongoose.connect('mongodb+srv://reaganives:fMKCDznObK9r1dxg@maverickofatlasdb.k3
   .catch((err) => console.error(err));
 
 async function seedDatabase() {
+  const OcbdImgList = [
+    '/photos/newarrivals/Blue_OCBD.webp',
+    '/photos/newarrivals/Ecru_OCBD.webp',
+    '/photos/newarrivals/Blue_Stripe_OCBD.webp',
+    '/photos/newarrivals/Green_OCBD.webp',
+    '/photos/newarrivals/LightBlue_OCBD.webp',
+    '/photos/newarrivals/Chambray_OCBD.webp',
+  ];
+
+  const PoloImgList = [
+    '/photos/newarrivals/Blue_Polo.webp',
+    '/photos/newarrivals/Brown_Polo.webp',
+  ];
+
+  const AnorakImgList = [
+    '/photos/newarrivals/Madras_Anorak.webp',
+    '/photos/newarrivals/Madras_Anorak2.webp',
+  ];
+
+  const S22ImgList = [
+    '/photos/newarrivals/S-22.webp',
+  ];
+
+  const BeltImgList = [
+    '/photos/newarrivals/belt.webp',
+  ];
+
+  const SockImgList = [
+    '/photos/newarrivals/socks.webp',
+  ];
+
   try {
     // Clear existing data
     await Category.deleteMany();
@@ -36,27 +67,30 @@ async function seedDatabase() {
 
     // Define categories and their respective collections
     const categoriesData = [
-      { name: 'Shirts', collections: ['OCBDs', 'Polos'] },
-      { name: 'Jackets & Outerwear', collections: ['Anoraks', 'Vintage S-22'] },
-      { name: 'Accessories', collections: ['Belts', 'Socks'] },
+      { name: 'shirts', collections: ['oxfords', 'polos'] },
+      { name: 'jackets&outerwear', collections: ['anoraks', 'vintages22'] },
+      { name: 'accessories', collections: ['belts', 'socks'] },
     ];
 
     const availableColors = ['White', 'Blue', 'Green'];
     const availableSizes = ['M', 'L'];
 
-     // Create Hardcoded Test User
-     const plainPassword = 'password123';
-     const hashedPassword = await bcrypt.hash(plainPassword, 10);
-     const testUser = new User({
-       name: 'Maverick of Atlas',
-       dob: new Date('1990-01-01'),
-       email: 'maverickofatlas@gmail.com',
-       password: hashedPassword,
-       isVerified: true,
-       createdAt: new Date(),
-     });
-     await testUser.save();
-     console.log(`Hardcoded test user created: ${testUser.email} with password: ${plainPassword}`);
+    // Create Hardcoded Test User
+    const plainPassword = 'password123';
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    const testUser = new User({
+      name: 'Maverick of Atlas',
+      dob: new Date('1990-01-01'),
+      email: 'maverickofatlas@gmail.com',
+      password: hashedPassword,
+      isVerified: true,
+      createdAt: new Date(),
+    });
+    await testUser.save();
+    console.log(`Hardcoded test user created: ${testUser.email} with password: ${plainPassword}`);
+
+    // Helper function to cycle through images for each collection
+    const getImageForItem = (imgList, index) => imgList[index % imgList.length];
 
     // Loop through categories and create them
     for (const categoryData of categoriesData) {
@@ -87,13 +121,24 @@ async function seedDatabase() {
         ];
 
         const allItems = [];
+        let imgList = [];
+
+        // Determine the correct image list based on collection name
+        if (collectionName === 'oxfords') imgList = OcbdImgList;
+        if (collectionName === 'polos') imgList = PoloImgList;
+        if (collectionName === 'anoraks') imgList = AnorakImgList;
+        if (collectionName === 'vintages22') imgList = S22ImgList;
+        if (collectionName === 'belts') imgList = BeltImgList;
+        if (collectionName === 'socks') imgList = SockImgList;
+
+        let imgIndex = 0;
 
         for (const combination of colorSizeCombinations) {
           const inventory = new Inventory({
             collection: collection._id,
             color: combination.color,
             size: combination.size,
-            items: []
+            items: [],
           });
           await inventory.save();
 
@@ -103,18 +148,20 @@ async function seedDatabase() {
               name: collectionName.slice(0, -1), // Singular name of collection
               description: faker.commerce.productDescription(),
               price: faker.commerce.price(),
-              style: faker.commerce.productAdjective(),
-              imageUrl: faker.image.url(),  // Use a random image from faker for now
+              style: 'Classic',
+              imageUrl: getImageForItem(imgList, imgIndex), // Cycle through images
               color: combination.color,
               size: combination.size,
               collection: collection._id,
-              inventory: inventory._id
+              inventory: inventory._id,
             });
             await item.save();
 
             // Add item to inventory and collection
             inventory.items.push(item._id);
             allItems.push(item._id);
+
+            imgIndex++; // Increment to cycle through images
           }
 
           // Save inventory after adding items
@@ -132,47 +179,47 @@ async function seedDatabase() {
 
     // Create Orders, Payment, and Shipping for the Hardcoded Test User
     for (let i = 0; i < 3; i++) {
-        const orderItems = [];
-  
-        for (let j = 0; j < 3; j++) {
-          const item = faker.helpers.arrayElement(await Item.find()); // Fetch an item
-          orderItems.push({
-            item: item._id, // Use item reference here
-            quantity: faker.number.int({ min: 1, max: 5 }),
-          });
-        }
-  
-        const order = new Order({
-          user: testUser._id,
-          items: orderItems,
-          totalAmount: faker.commerce.price(),
-          orderStatus: faker.helpers.arrayElement(['Processing', 'Shipped', 'Delivered']),
-          createdAt: faker.date.past(),
+      const orderItems = [];
+
+      for (let j = 0; j < 3; j++) {
+        const item = faker.helpers.arrayElement(await Item.find()); // Fetch an item
+        orderItems.push({
+          item: item._id, // Use item reference here
+          quantity: faker.number.int({ min: 1, max: 5 }),
         });
-  
-        await order.save();
-  
-        const payment = new Payment({
-          order: order._id,
-          amount: order.totalAmount,
-          method: faker.helpers.arrayElement(['Credit Card', 'Paypal', 'Shopify Pay']),
-          paymentStatus: faker.helpers.arrayElement(['Paid', 'Pending', 'Failed']),
-        });
-  
-        await payment.save();
-        order.payment = payment._id;
-  
-        const shipping = new Shipping({
-          order: order._id,
-          carrier: faker.company.name(),
-          trackingNumber: faker.string.uuid(),
-          shippingStatus: faker.helpers.arrayElement(['Shipped', 'In Transit', 'Delivered']),
-        });
-  
-        await shipping.save();
-        order.shipping = shipping._id;
-        await order.save();
       }
+
+      const order = new Order({
+        user: testUser._id,
+        items: orderItems,
+        totalAmount: faker.commerce.price(),
+        orderStatus: faker.helpers.arrayElement(['Processing', 'Shipped', 'Delivered']),
+        createdAt: faker.date.past(),
+      });
+
+      await order.save();
+
+      const payment = new Payment({
+        order: order._id,
+        amount: order.totalAmount,
+        method: faker.helpers.arrayElement(['Credit Card', 'Paypal', 'Shopify Pay']),
+        paymentStatus: faker.helpers.arrayElement(['Paid', 'Pending', 'Failed']),
+      });
+
+      await payment.save();
+      order.payment = payment._id;
+
+      const shipping = new Shipping({
+        order: order._id,
+        carrier: faker.company.name(),
+        trackingNumber: faker.string.uuid(),
+        shippingStatus: faker.helpers.arrayElement(['Shipped', 'In Transit', 'Delivered']),
+      });
+
+      await shipping.save();
+      order.shipping = shipping._id;
+      await order.save();
+    }
 
     console.log('Categories, collections, items, and inventory seeded successfully.');
     process.exit();
@@ -183,3 +230,4 @@ async function seedDatabase() {
 }
 
 seedDatabase();
+

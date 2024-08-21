@@ -35,7 +35,7 @@ export default function NewArrivalsGrid() {
   }, []);
 
   if (loading) {
-    return <p>Loading new arrivals...</p>;
+    return <div className="flex justify-center mb-96 mt-20"><p className="bg-ivyPurple text-white text-xs py-.5 px-2 tracking-widest font-roboto">Loading new arrivals...</p></div>
   }
 
   if (error) {
@@ -54,7 +54,7 @@ export default function NewArrivalsGrid() {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {/* Slice the items array to show only the first 36 items */}
-        {items.slice(0, 16).map((item) => (
+        {items.slice(0, 12).map((item) => (
           <div key={item._id} className="flex flex-col items-center">
             <Link to={`/collections/${item.collection.name}`}>
               <img

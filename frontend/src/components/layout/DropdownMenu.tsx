@@ -1,27 +1,23 @@
-import { useState, useEffect } from 'react';
-
+import { useState } from 'react';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { Link } from 'react-router-dom'; // Import Link for dynamic routing
 
 export default function DropdownMenu() {
     const [isOpen, setIsOpen] = useState(false);
-    let timeoutId;
+    const [hoveredItem, setHoveredItem] = useState(null);
 
     const handleMouseEnter = () => {
-        clearTimeout(timeoutId); // Clear the timeout to prevent the dropdown from closing
         setIsOpen(true);
     };
 
     const handleMouseLeave = () => {
-        timeoutId = setTimeout(() => {
-            setIsOpen(false);
-        }, 150); // Delay the closing by 150ms
+        setIsOpen(false);
+        setHoveredItem(null);
     };
 
-    useEffect(() => {
-        return () => {
-            clearTimeout(timeoutId); // Clean up the timeout if the component unmounts
-        };
-    }, []);
+    const handleItemMouseEnter = (item) => {
+        setHoveredItem(item); // Set the hovered item to trigger the second dropdown
+    };
 
     return (
         <div
@@ -52,21 +48,113 @@ export default function DropdownMenu() {
             {isOpen && (
                 <div className="absolute top-full left-0 w-48 bg-white shadow-lg z-10">
                     <ul className="flex pt-4 flex-col text-black gap-2 text-xs font-noto text-ivyPurple tracking-widest transition-all">
-                        <li className="py-2 hover:bg-orange-200 cursor-pointer"><a href=""><ArrowRightIcon sx={{ fontSize: 16 }} /><span className="ml-1">Shirts</span></a></li>
-                        <li className="py-2 hover:bg-orange-200 cursor-pointer"><a href=""><ArrowRightIcon sx={{ fontSize: 16 }} /><span className="ml-1">Jackets & Outerwear</span></a></li>
-                        <li className="py-2 hover:bg-orange-200 cursor-pointer"><a href=""><ArrowRightIcon sx={{ fontSize: 16 }} /><span className="ml-1">Accesories</span></a></li>
-                        <li className="py-2 hover:bg-orange-200 cursor-pointer"><a href=""><ArrowRightIcon sx={{ fontSize: 16 }} /><span className="ml-1">New Arrivals</span></a></li>
+                        {/* Shirts Category */}
+                        <li
+                            className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
+                            onMouseEnter={() => handleItemMouseEnter('Shirts')}
+                        >
+                            <span className="flex items-center w-full">
+                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                <span className="ml-1">Shirts</span>
+                            </span>
+                            {hoveredItem === 'Shirts' && (
+                            <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                                <div className='bg-white'>
+                                    <ul className="flex flex-col w-full h-full gap-2 bg-white">
+                                        <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
+                                            <Link to="/categories/shirts/oxfords" className="flex items-center w-full">
+                                            <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                            <span className="ml-1 text-xs">Oxfords</span>
+                                            </Link>
+                                        </li>
+                                        <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
+                                            <Link to="/categories/shirts/polos" className="flex items-center w-full">
+                                            <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                            <span className="ml-1">Polos</span>
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            )}
+                        </li>
+                        
+                        {/* Jackets & Outerwear Category */}
+                        <li
+                            className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
+                            onMouseEnter={() => handleItemMouseEnter('Jackets & Outerwear')}
+                        >
+                            <span className="flex items-center w-full">
+                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                <span className="ml-1">Jackets & Outerwear</span>
+                            </span>
+                            {hoveredItem === 'Jackets & Outerwear' && (
+                                <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                                    <div className='bg-white'>
+                                        <ul className="flex flex-col w-full h-full gap-2 bg-white">
+                                            <li className="py-2 bg-white hover:bg-orange-200 cursor-pointer flex items-center">
+                                                <Link to="/categories/jackets&outerwear/anoraks" className="flex items-center w-full">
+                                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                                <span className="ml-1">Anoraks</span>
+                                                </Link>
+                                            </li>
+                                            <li className="py-2 bg-white hover:bg-orange-200 cursor-pointer flex items-center">
+                                                <Link to="/categories/jackets&outerwear/vintages22" className="flex items-center w-full">
+                                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                                <span className="ml-1">Vintage S-22</span>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+                        </li>
+
+                        {/* Accessories Category */}
+                        <li
+                            className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
+                            onMouseEnter={() => handleItemMouseEnter('Accessories')}
+                        >
+                            <span className="flex items-center w-full">
+                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                <span className="ml-1">Accessories</span>
+                            </span>
+                            {hoveredItem === 'Accessories' && (
+                                <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                                <div className='bg-white'>
+                                    <ul className="flex flex-col w-full h-full gap-2 bg-white">
+                                        <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
+                                            <Link to="/categories/accessories/belts" className="flex items-center w-full">
+                                            <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                            <span className="ml-1 text-xs">Belts</span>
+                                            </Link>
+                                        </li>
+                                        <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
+                                            <Link to="/categories/accessories/socks" className="flex items-center w-full">
+                                            <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                            <span className="ml-1">Socks</span>
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            )}
+                        </li>
+
+                        {/* New Arrivals */}
+                        <li
+                            className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
+                            onMouseEnter={() => handleItemMouseEnter('New Arrivals')}
+                        >
+                            <Link to="/categories/newarrivals" className="flex items-center w-full">
+                                <ArrowRightIcon sx={{ fontSize: 16 }} />
+                                <span className="ml-1">New Arrivals</span>
+                            </Link>
+                        </li>
                     </ul>
                 </div>
             )}
         </div>
     );
 }
-
-
-
-
-
-
-
 
