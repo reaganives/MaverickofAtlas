@@ -1,5 +1,4 @@
 const Order = require('../models/Order');
-const Inventory = require('../models/Inventory');
 
 // Get all orders
 exports.getOrders = async (req, res) => {

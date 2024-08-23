@@ -39,7 +39,7 @@ export default function Navbar() {
     };
 
     return (
-        <div className="w-full items-center text-xs font-noto text-ivyPurple">
+        <div className="w-full items-center text-xs font-quicksand text-ivyPurple">
             <ul className="flex justify-between items-center tracking-wide bg-emerald-50">
                 <div className="flex gap-8">
                     <li className="font-poiret bg-ivyPurple text-white px-2 py-px tracking-wider">

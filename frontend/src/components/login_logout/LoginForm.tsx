@@ -24,23 +24,31 @@ const LoginForm = () => {
         try {
             const response = await axios.post('/auth/login', { email, password });
             console.log('Login successful:', response.data);
-
-            // The server will handle setting the access token and refresh token in HttpOnly cookies
-            // You no longer need to store anything in localStorage
-
+    
             // Redirect to the homepage or another protected route
             navigate('/');
         } catch (error: any) {
             console.error('Error during login:', error);
-            if (error.response && error.response.data.error.includes('verify')) {
-                setErrorMessage(error.response.data.error);
+    
+            if (error.response) {
+                const { status, data } = error.response;
+                if (status === 404) {
+                    setErrorMessage('User not found. Please check your email or register.');
+                } else if (status === 400 && data.error.includes('verify')) {
+                    setErrorMessage('Please verify your email to log in. Check your inbox for a verification link.');
+                } else if (status === 400) {
+                    setErrorMessage('Invalid email or password. Please try again.');
+                } else {
+                    setErrorMessage('An error occurred during login. Please try again later.');
+                }
             } else {
-                setErrorMessage('Invalid email or password. Please try again.');
+                setErrorMessage('An error occurred. Please check your connection and try again.');
             }
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="">
@@ -107,6 +115,7 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
 
 
 

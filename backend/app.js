@@ -20,16 +20,12 @@ app.use(cors({
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
-const itemRoutes = require('./routes/itemRoutes');
-const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
-const inventoryRoutes = require('./routes/inventoryRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const shippingRoutes = require('./routes/shippingRoutes');
 const authRoutes = require('./routes/authRoutes');
-const collectionRoutes = require('./routes/collectionRoutes');
+const shopifyRoutes = require('./routes/shopifyRoutes');
 
 // Import controller
 const { getCurrentUser } = require('./controllers/userController');
@@ -37,16 +33,12 @@ const verifyToken = require('./middleware/verifyToken');
 
 // Use routes
 app.use('/api/users', userRoutes);
-app.use('/api/items', itemRoutes);
-app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/inventory', inventoryRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/collections', collectionRoutes);
+app.use('/api/shopify', shopifyRoutes);
 
 // Define /me route
 app.get('/api/me', verifyToken, getCurrentUser);  // Directly reference the controller function

@@ -6,9 +6,10 @@ export const useShoppingCart = () => {
   const [loading, setLoading] = useState(true);
   const [emptyCartMessage, setEmptyCartMessage] = useState('');
 
+  // Fetch the cart items for the user or guest
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(`/cart`);  // No need for userId, backend will infer it
+      const response = await axios.get(`/cart`);  // No need for userId, backend will infer user or guest
       const cartData = response.data;
 
       // Check if the cart is empty
@@ -39,8 +40,14 @@ export const useShoppingCart = () => {
         setCartItems(populatedCartItems);
       }
     } catch (error) {
-      console.error('Error fetching cart data:', error);
-      setEmptyCartMessage('Failed to load cart items.');
+      // Handle cases where the guest cart or token has expired
+      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+        // Guest cart has expired or does not exist
+        setEmptyCartMessage('Your cart is currently empty.');
+      } else {
+        console.error('Error fetching cart data:', error);
+        setEmptyCartMessage('Failed to load cart items.');
+      }
     } finally {
       setLoading(false);
     }
@@ -53,7 +60,7 @@ export const useShoppingCart = () => {
   // Function to handle quantity changes
   const handleQuantityChange = async (itemId, newQuantity, size, color, style) => {
     try {
-      const cartResponse = await axios.get(`/cart`);
+      const cartResponse = await axios.get(`/cart`);  // Fetch cart to get cartId
       const cartId = cartResponse.data._id;
 
       await axios.put(`/cart/${cartId}/item/${itemId}/quantity`, { newQuantity });
@@ -74,7 +81,7 @@ export const useShoppingCart = () => {
   // Function to handle item removal
   const handleRemoveItem = async (itemId) => {
     try {
-      const cartResponse = await axios.get(`/cart`);
+      const cartResponse = await axios.get(`/cart`);  // Fetch cart to get cartId
       const cartId = cartResponse.data._id;
 
       await axios.delete(`/cart/${cartId}/item/${itemId}`);
@@ -94,10 +101,3 @@ export const useShoppingCart = () => {
     handleRemoveItem,
   };
 };
-
-
-
-
-
-
-

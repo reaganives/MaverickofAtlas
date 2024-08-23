@@ -1,15 +1,44 @@
 import axios from 'axios';
 
+// Create an axios instance
 const instance = axios.create({
   baseURL: 'http://localhost:4000/api',  // Replace with your backend URL
   timeout: 1000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,  // This ensures that cookies are sent with requests
+  withCredentials: true,  // This ensures cookies are sent with every request
 });
 
-// No need for interceptors to handle tokens in headers anymore because the tokens are in cookies
-// Any manual token injection logic in headers has been removed.
+// Add a request interceptor to handle expired access tokens
+instance.interceptors.response.use(
+  (response) => {
+    // Simply return the response if it's successful
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Check if the error is due to an expired access token
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;  // Prevent infinite loop if refresh fails
+
+      try {
+        // Try to refresh the access token by making a request to the refresh token endpoint
+        const refreshResponse = await instance.post('/auth/refresh-token');
+
+        // If successful, retry the original request with the new access token
+        return instance(originalRequest);
+      } catch (refreshError) {
+        console.error('Failed to refresh token:', refreshError);
+        // If refresh fails, log out the user or handle appropriately
+        window.location.href = '/login';  // Redirect to login page
+      }
+    }
+
+    // For any other errors, reject the promise
+    return Promise.reject(error);
+  }
+);
 
 export default instance;

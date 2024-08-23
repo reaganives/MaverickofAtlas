@@ -89,7 +89,7 @@ const RegistrationForm = () => {
         <div className='flex flex-col items-center gap-4 justify-center'>
           <button
             type="submit"
-            className='btn py-0.5 px-4 tracking-widest text-xs text-white bg-ivyPurple w-1/7 mt-12'
+            className='btn py-1 px-4 tracking-widest text-xs text-white bg-ivyPurple w-1/7 mt-12'
             disabled={loading}
           >
             {loading ? 'Signing Up...' : 'Sign Up'}

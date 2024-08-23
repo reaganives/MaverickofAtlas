@@ -11,8 +11,8 @@ const ProductDetailsWrapper = () => {
         <ProductDetails />
       </div>
       {/* Set z-index lower here to push RetroIcon behind */}
-      <div className="absolute inset-0 bottom-96 -top-3 left-4 flex items-center justify-center pointer-events-none z-0">
-        {/* <RetroIcon /> */}
+      <div className="absolute inset-0 bottom-60 -top-3 left-4 flex items-center justify-center pointer-events-none z-0">
+        <RetroIcon />
         {/* <ArtDecoCity /> */}
       </div>
     </div>

@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AWS = require('aws-sdk');
 const crypto = require('crypto');
-const Cart = require('../models/Cart');
 const Order = require('../models/Order');
+const axios = require('axios');
 
 // Define Joi schemas
 const registrationSchema = Joi.object({
@@ -42,70 +42,84 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
-// Login function
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(404).json({ error: 'User not found. Please register or check your email.' });
     }
 
-    // Check the password
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
-    // If user is not verified, send verification email
-    if (!user.isVerified) {
-      const verificationLink = `http://localhost:5173/verify-email/${user.verificationToken}`;  // Adjust this to your frontend URL
-      const params = {
-        Destination: { ToAddresses: [email] },
-        Message: {
-          Body: {
-            Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
-          },
-          Subject: { Data: 'Verify Your Email' }
-        },
-        Source: process.env.EMAIL_SOURCE
-      };
+    res.clearCookie('guestToken');
 
-      // Send the email
-      await ses.sendEmail(params).promise();
-      console.log('Verification email sent.');
-
-      return res.status(401).json({ error: 'Please verify your email first to log in. A verification link has been sent.' });
-    }
-
-    // Generate Access and Refresh Tokens for verified users
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = generateRefreshToken(user._id);
 
-    // Set cookies
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
+      maxAge: 1 * 60 * 60 * 1000,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Retrieve the user's existing Shopify cart token from the database
+    let cartToken = user.shopifyCartToken;
+
+    if (!cartToken) {
+      const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
+      const query = `
+        mutation {
+          cartCreate {
+            cart {
+              id
+            }
+          }
+        }
+      `;
+
+      const shopifyResponse = await axios.post(
+        shopifyUrl,
+        { query },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+          }
+        }
+      );
+
+      cartToken = shopifyResponse.data.data.cartCreate.cart.id;
+      user.shopifyCartToken = cartToken;
+      await user.save();  // Save the cart token to the user record
+    }
+
+    res.cookie('shopifyCartToken', cartToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ user });
+    res.status(200).json({ message: 'Login successful', user });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
+
 
 // Register function
 const register = async (req, res) => {
@@ -135,15 +149,6 @@ const register = async (req, res) => {
         });
 
         await newUser.save();
-
-        // Create an empty cart for the new user
-        const newCart = new Cart({
-            user: newUser._id,
-            items: []  // Initially, the cart is empty
-        });
-
-        await newCart.save();
-        console.log('Empty cart created for the new user.');
 
         // Generate verification link
         const verificationLink = `http://localhost:5173/verify-email/${verificationToken}`;
@@ -191,7 +196,7 @@ const verifyEmail = async (req, res) => {
 
         res.cookie('accessToken', jwtToken, {
           httpOnly: true,
-          secure: true,
+          secure: process.env.NODE_ENV === 'production',
           sameSite: 'Strict',
           maxAge: 1 * 60 * 60 * 1000 // 1 hour
         });
@@ -306,7 +311,7 @@ const refreshToken = (req, res) => {
     // Send new access token back in a cookie
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
       maxAge: 1 * 60 * 60 * 1000 // 1 hour
     });
@@ -319,11 +324,29 @@ const refreshToken = (req, res) => {
 };
 
 // Logout function
-const logout = (req, res) => {
-    res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
-    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
+const logout = async (req, res) => {
+  try {
+    const userId = req.user ? req.user.id : null;
+    const cartToken = req.cookies.shopifyCartToken;
+
+    if (userId && cartToken) {
+      // Save the cart token to the user's account
+      await User.findByIdAndUpdate(userId, { shopifyCartToken: cartToken });
+    }
+
+    // Clear the access and refresh tokens and the shopifyCartToken
+    res.clearCookie('accessToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('shopifyCartToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+
     res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Server error during logout' });
+  }
 };
+
+
 
 // Get the current authenticated user and their order history
 const getCurrentUser = async (req, res) => {

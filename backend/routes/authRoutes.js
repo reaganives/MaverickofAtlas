@@ -1,10 +1,10 @@
 const express = require('express');
 const { login, logout, refreshToken, register, sendPasswordReset, resetPassword, verifyEmail, getCurrentUser, checkAuth } = require('../controllers/authController');
 const router = express.Router();
-const verifyToken = require('../middleware/verifyToken');
+const verifyUserOrGuestToken = require('../middleware/verifyToken');
 
 // Define the routes
-router.get('/me', verifyToken, getCurrentUser);
+router.get('/me', verifyUserOrGuestToken, getCurrentUser);
 router.get('/check-auth', checkAuth);
 router.post('/login', login);
 router.post('/logout', logout);

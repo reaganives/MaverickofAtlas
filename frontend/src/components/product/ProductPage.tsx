@@ -6,6 +6,8 @@ import ProductFull from './ProductFull';
 import HomeDivider from '../layout/HomeDivider';
 import Footer from '../layout/Footer';
 import ProductPageTest from './ProductPageTest';
+import ProductDetailsWrapper from './ProductDetailsWrapper';
+
 
 
 export default function ProductPage () {

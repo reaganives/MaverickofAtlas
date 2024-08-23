@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import ViewAll from './ViewAll';
-import axios from '../../axiosConfig'; // Ensure this path is correct
+import axios from '../../axiosConfig';  // Ensure this path is correct
 
 interface Item {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  price: string;  // Note that Shopify prices are strings
   imageUrl: string;
   style: string;
-  collection: { name: string };  // The populated collection with its name
+  color: string;
 }
 
 export default function NewArrivalsGrid() {
@@ -22,7 +22,7 @@ export default function NewArrivalsGrid() {
   useEffect(() => {
     const fetchNewArrivals = async () => {
       try {
-        const response = await axios.get('/items/newarrivals'); // Ensure that this route populates the collection data
+        const response = await axios.get('/shopify/newarrivals');  // Fetch from backend route
         setItems(response.data);
         setLoading(false);
       } catch (err) {
@@ -35,7 +35,7 @@ export default function NewArrivalsGrid() {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center mb-96 mt-20"><p className="bg-ivyPurple text-white text-xs py-.5 px-2 tracking-widest font-roboto">Loading new arrivals...</p></div>
+    return <div className="flex justify-center mb-96 mt-20"><p className="bg-ivyPurple text-white text-xs py-.5 px-2 tracking-widest font-roboto">Loading new arrivals...</p></div>;
   }
 
   if (error) {
@@ -53,13 +53,12 @@ export default function NewArrivalsGrid() {
         NEW ARRIVALS
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* Slice the items array to show only the first 36 items */}
         {items.slice(0, 12).map((item) => (
           <div key={item._id} className="flex flex-col items-center">
-            <Link to={`/collections/${item.collection.name}`}>
+            <Link to={`/collections/${item._id}`}>
               <img
                 src={item.imageUrl}
-                alt={item.name}
+                alt={`${item.name} - ${item.color}`}
                 className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer"
               />
             </Link>
@@ -72,6 +71,4 @@ export default function NewArrivalsGrid() {
     </motion.div>
   );
 }
-
-
 

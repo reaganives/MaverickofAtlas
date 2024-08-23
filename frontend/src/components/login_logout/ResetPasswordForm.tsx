@@ -44,36 +44,43 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <div>
-      <h2>Reset Password</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>New Password:</label>
+    <div className='flex flex-col gap-6 w-full max-w-md mx-auto p-6 bg-white shadow-md rounded-lg'>
+      <h2 className="text-2xl font-noto font-semibold tracking-wider text-ivyPurple border-b border-ivyPurple pb-2 mb-4">Reset Password</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-ivyPurple">New Password:</label>
           <input
             type="password"
             value={password}
+            placeholder='Enter new password'
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="px-3 py-2 border border-ivyPurple/30 rounded-md focus:outline-none focus:border-ivyPurple focus:ring-1 focus:ring-ivyPurple"
           />
         </div>
-        <div>
-          <label>Confirm Password:</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-ivyPurple">Confirm Password:</label>
           <input
             type="password"
             value={confirmPassword}
+            placeholder='Confirm new password'
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            className="px-3 py-2 border border-ivyPurple/30 rounded-md focus:outline-none focus:border-ivyPurple focus:ring-1 focus:ring-ivyPurple"
           />
         </div>
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-        <button type="submit">Reset Password</button>
+        {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+        {successMessage && <p className="text-sm text-green-500">{successMessage}</p>}
+        <button type="submit" className='btn py-2 px-4 tracking-widest text-xs text-white bg-ivyPurple w-full rounded-md mt-4'>
+          Reset Password
+        </button>
       </form>
     </div>
   );
 };
 
 export default ResetPasswordForm;
+
 
 
 

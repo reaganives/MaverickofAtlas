@@ -1,59 +1,47 @@
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductImages from './ProductImages';
 import ProductDetailsWrapper from './ProductDetailsWrapper';
+import axios from '../../axiosConfig';
 
-const oxfords = [
-  { id: 1, name: 'Oxford in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/Ecru_OCBD.webp' },
-  { id: 2, name: 'Oxford in Light Blue', price: '$125', imageUrl: '/public/photos/newarrivals/LightBlue_OCBD.webp' },
-  { id: 3, name: 'Oxford in Chambray', price: '$125', imageUrl: '/public/photos/newarrivals/Chambray_OCBD.webp' },
-  { id: 4, name: 'Oxford in Green', price: '$125', imageUrl: '/public/photos/newarrivals/Green_OCBD.webp' },
-];
+export default function ProductFull() {
+  const { productId } = useParams<{ productId: string }>();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const polos = [
-  { id: 5, name: 'Polo in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/Blue_Polo.webp' },
-  { id: 6, name: 'Polo in Light Blue', price: '$125', imageUrl: '/public/photos/newarrivals/Brown_Polo.webp' }
-];
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`/shopify/products/${productId}`);
+        setProduct(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load product data.');
+        setLoading(false);
+      }
+    };
 
-const anoraks = [
-  { id: 7, name: 'Anorak in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/Madras_Anorak.webp' },
-  { id: 8, name: 'Anorak in Light Blue', price: '$125', imageUrl: '/public/photos/newarrivals/Madras_Anorak2.webp' }
-];
+    fetchProduct();
+  }, [productId]);
 
-const vintages22 = [
-  { id: 9, name: 'S22 in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/S-22.webp' },
-];
+  if (loading) {
+    return <p>Loading product...</p>;
+  }
 
-const belts = [
-  { id: 10, name: 'Belt in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/belt.webp' },
-];
+  if (error) {
+    return <p>{error}</p>;
+  }
 
-const socks = [
-  { id: 11, name: 'Socks in Blue', price: '$125', imageUrl: '/public/photos/newarrivals/socks.webp' },
-];
-
-const collections = {
-  oxfords,
-  polos,
-  anoraks,
-  vintages22,
-  belts,
-  socks
-};
-
-const ProductFull = () => {
-  const { collectionName } = useParams<{ collectionName: string }>();
-
-  // Get products based on the collection name from the URL, default to empty array
-  const products = collections[collectionName.toLowerCase()] || [];
+  if (!product) {
+    return <p>No product found.</p>;
+  }
 
   return (
     <div className="flex flex-row w-full gap-52">
-      <ProductImages products={products} />
-      <ProductDetailsWrapper />
+      {/* Pass the images array as a prop to ProductImages */}
+      <ProductImages products={product.images} />
+      <ProductDetailsWrapper product={product} />
     </div>
   );
-};
-
-export default ProductFull;
-
-
+}

@@ -20,7 +20,7 @@ const NewArrivalsLogic: React.FC = () => {
   useEffect(() => {
     const fetchNewArrivals = async () => {
       try {
-        const response = await axios.get('/items/newarrivals');
+        const response = await axios.get('/shopify/newarrivals'); // Updated to hit your backend
         setNewArrivals(response.data);
         setLoading(false);
       } catch (err) {
@@ -60,3 +60,4 @@ const NewArrivalsLogic: React.FC = () => {
 };
 
 export default NewArrivalsLogic;
+

@@ -10,11 +10,11 @@ import CartPage from './components/cart/CartPage';
 import Dashboard from './components/user/Dashboard';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import UnprotectedRoute from './components/layout/UnprotectedRoute';
-import RequestNewPassForm from './components/login_logout/RequestNewPassForm';
-import ResetPasswordForm from './components/login_logout/ResetPasswordForm';
 import VerifyEmail from './components/registration/VerifyEmail';
 import ProductPage from './components/product/ProductPage';
 import CollectionsPage from './components/categories/CollectionsPage';
+import RequestNewPassPage from './components/login_logout/RequestNewPassPage';
+import ResetPassPage from './components/login_logout/ResetPassPage';
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
         }
         />
       <Route 
-        path="/collections/:collectionName/"
+        path="/collections/:productId"
         element={
           <>
           <div className='flex flex-col justify-center min-h-screen'>
@@ -150,7 +150,7 @@ function App() {
           <>
           <UnprotectedRoute>
           <div className='flex flex-col justify-center min-h-screen'>
-              <RequestNewPassForm />
+              <RequestNewPassPage />
               <HomeDivider />
               <div className='w-full flex justify-center mt-20'>
                 <div className='w-full max-w-screen-lg'>
@@ -168,7 +168,7 @@ function App() {
           <>
           <UnprotectedRoute>
           <div className='flex flex-col justify-center min-h-screen'>
-              <ResetPasswordForm />
+              <ResetPassPage />
               <HomeDivider />
               <div className='w-full flex justify-center mt-20'>
                 <div className='w-full max-w-screen-lg'>

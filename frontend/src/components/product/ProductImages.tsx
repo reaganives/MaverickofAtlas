@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
 
-const ProductImages = ({ products }) => {
-  const [mainImage, setMainImage] = useState('');
+interface ProductImage {
+  id: string;
+  src: string;
+}
 
-  // Ensure the main image is set when the products array is updated
+interface ProductImagesProps {
+  products: ProductImage[];
+}
+
+const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
+  const [mainImage, setMainImage] = useState<string>('');
+
   useEffect(() => {
     if (products.length > 0) {
-      setMainImage(products[0].imageUrl);
+      setMainImage(products[0].src);  // Set the main image to the first image initially
     }
   }, [products]);
 
@@ -15,47 +23,53 @@ const ProductImages = ({ products }) => {
       {/* Main Image */}
       <div className="mb-4">
         <div className="w-96 h-auto">
-          <img
-            src={mainImage}
-            alt="Main Product"
-            className="object-contain w-full h-full"
-          />
+          {mainImage && (
+            <img
+              src={mainImage}
+              alt="Main Product"
+              className="object-contain w-full h-full"
+            />
+          )}
         </div>
       </div>
 
       {/* Thumbnail Grid */}
-      <div className="grid grid-cols-3 gap-2">
-        {products.slice(0, 3).map((product, index) => (
-          <div
-            key={product.id}
-            className="w-24 h-24 hover:ring-2 ring-black"
-            onMouseEnter={() => setMainImage(product.imageUrl)}
-          >
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="object-cover w-full h-full cursor-pointer"
-            />
-          </div>
-        ))}
+      {products.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="w-24 h-24 hover:ring-2 ring-black"
+              onMouseEnter={() => setMainImage(product.src)}
+            >
+              <img
+                src={product.src}
+                alt="Thumbnail"
+                className="object-cover w-full h-full cursor-pointer"
+              />
+            </div>
+          ))}
 
-        {/* Render the fourth image if it exists */}
-        {products[3] && (
-          <div
-            key={products[3].id}
-            className="w-24 h-24 hover:ring-2 transition ring-black col-start-1 row-start-2"
-            onMouseEnter={() => setMainImage(products[3].imageUrl)}
-          >
-            <img
-              src={products[3].imageUrl}
-              alt={products[3].name}
-              className="object-cover w-full h-full transition cursor-pointer"
-            />
-          </div>
-        )}
-      </div>
+          {/* Render the fourth image if it exists */}
+          {products[3] && (
+            <div
+              key={products[3].id}
+              className="w-24 h-24 hover:ring-2 transition ring-black col-start-1 row-start-2"
+              onMouseEnter={() => setMainImage(products[3].src)}
+            >
+              <img
+                src={products[3].src}
+                alt="Thumbnail"
+                className="object-cover w-full h-full transition cursor-pointer"
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 export default ProductImages;
+
+

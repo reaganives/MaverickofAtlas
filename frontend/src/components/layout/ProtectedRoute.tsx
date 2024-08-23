@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import axios from '../../axiosConfig';  // Make sure axios is configured properly
+import axios from '../../axiosConfig';  // Ensure axios is configured properly
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,13 +12,19 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        // Make a request to the backend to check if the user is authenticated
+        // Attempt to refresh the token first
+        await axios.post('/auth/refresh-token');
+        console.log('Token refreshed successfully.');
+
+        // After refreshing the token, check if the user is authenticated
         const response = await axios.get('/auth/check-auth');
         console.log('Auth Check Response:', response.data);
         setIsAuthenticated(response.data.isAuthenticated); // Backend should respond with `{ isAuthenticated: true/false }`
       } catch (error) {
-        console.error('Error checking authentication status:', error);
-        setIsAuthenticated(false); // Assume unauthenticated on error
+        console.error('Error during auth check or token refresh:', error);
+
+        // If token refresh fails or check-auth fails, set as unauthenticated
+        setIsAuthenticated(false); // Assume unauthenticated if token refresh or auth check fails
       }
     };
 
@@ -44,5 +50,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 };
 
 export default ProtectedRoute;
+
 
 
