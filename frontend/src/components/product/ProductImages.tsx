@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 
 interface ProductImage {
   id: string;
@@ -19,16 +21,18 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
   }, [products]);
 
   return (
-    <div className="flex flex-col py-10">
+    <div className="flex flex-col py-4"> {/* Reduced padding from py-10 to py-4 */}
       {/* Main Image */}
-      <div className="mb-4">
-        <div className="w-96 h-auto">
+      <div className="mb-2"> {/* Reduced margin-bottom from mb-4 to mb-2 */}
+        <div className="w-96 flex jusitfy-center items-center" style={{ height: '530px' }}> {/* Adjust the size as needed */}
           {mainImage && (
-            <img
-              src={mainImage}
-              alt="Main Product"
-              className="object-contain w-full h-full"
-            />
+            <Zoom>
+              <img
+                src={mainImage}
+                alt="Main Product"
+                className="object-contain w-full h-full cursor-pointer transition duration-300 transform hover:scale-105"
+              />
+            </Zoom>
           )}
         </div>
       </div>
@@ -39,7 +43,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
           {products.map((product) => (
             <div
               key={product.id}
-              className="w-24 h-24 hover:ring-2 ring-black"
+              className="w-24 h-24 hover:ring-2 ring-black mt-4"
               onMouseEnter={() => setMainImage(product.src)}
             >
               <img
@@ -51,7 +55,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
           ))}
 
           {/* Render the fourth image if it exists */}
-          {products[3] && (
+          {/* {products[3] && (
             <div
               key={products[3].id}
               className="w-24 h-24 hover:ring-2 transition ring-black col-start-1 row-start-2"
@@ -63,7 +67,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
                 className="object-cover w-full h-full transition cursor-pointer"
               />
             </div>
-          )}
+          )} */}
         </div>
       )}
     </div>
@@ -71,5 +75,9 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
 };
 
 export default ProductImages;
+
+
+
+
 
 

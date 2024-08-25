@@ -3,6 +3,7 @@ import Navbar from '../layout/Navbar';
 import LogoHome from '../logo/LogoHome';
 import DropdownMenu from '../layout/DropdownMenu';
 import ProductFull from './ProductFull';
+import Breadcrumb from '../layout/Breadcrumb';
 import HomeDivider from '../layout/HomeDivider';
 import Footer from '../layout/Footer';
 import ProductPageTest from './ProductPageTest';
@@ -20,8 +21,9 @@ export default function ProductPage () {
                 <div className="w-full flex justify-center">
                     <LogoHome />
                 </div>
-                <div className="w-full">
+                <div className="w-full flex flex-col gap-8">
                     <DropdownMenu />
+                    <Breadcrumb />
                 </div>
                 <div className="w-full flex justify-center mb-40">
                     <ProductFull />

@@ -66,22 +66,19 @@ const ProductDetails: React.FC = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedVariant) return;
-
+    if (!selectedVariant || quantity <= 0) return;  // Ensure quantity is valid
+  
     setAdding(true);
-
+  
     try {
       const response = await axios.post('/shopify/cart/add', {
         variantId: selectedVariant.id,
-        quantity: quantity,
+        quantity: quantity,  // Make sure quantity is being passed here
       });
-
+  
       if (response.status === 200) {
-        // Store the cart token in cookies instead of localStorage
         const cartToken = response.data.cart_token;
         Cookies.set('shopifyCartToken', cartToken, { expires: 7, secure: true, sameSite: 'Strict' });
-
-        // Redirect to the cart page after successful addition
         navigate('/cart');
       }
     } catch (err) {
@@ -91,9 +88,13 @@ const ProductDetails: React.FC = () => {
       setAdding(false);
     }
   };
+  
 
   if (loading) return <p>Loading product details...</p>;
   if (error) return <p>{error}</p>;
+
+  // Fetch the price from the first variant as fallback if no variant is selected
+  const productPrice = selectedVariant?.price || product?.variants[0]?.price || 'N/A';
 
   return (
     <div className="w-full mt-6 lg:mt-0">
@@ -104,21 +105,21 @@ const ProductDetails: React.FC = () => {
           </h1>
 
           <p className="flex justify-end font-noto text-md mt-10 tracking-wide text-ivyPurple mb-2">
-            PRICE: ${selectedVariant?.price || 'Select size and color'} (Tax Included)
+            PRICE: ${productPrice} (Tax Included)
           </p>
           <div className="bg-white py-1 my-3">
             <div className="h-px bg-ivyPurple/30"></div>
           </div>
 
           {/* Star Rating */}
-          <div className="flex justify-start items-center">
+          {/* <div className="flex justify-start items-center">
             <div className="text-lg flex cursor-pointer">
               {[...Array(4)].map((_, i) => (
                 <svg
                   key={i}
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-3 w-3"
-                  fill="gray"
+                  fill="black"
                   viewBox="0 0 24 24"
                 >
                   <path d="M12 .587l3.668 7.571 8.332 1.209-6.042 5.885 1.427 8.311-7.385-3.882-7.385 3.882 1.427-8.311-6.042-5.885 8.332-1.209z" />
@@ -127,19 +128,19 @@ const ProductDetails: React.FC = () => {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-3 w-3"
-                fill="gray"
+                fill="black"
                 viewBox="0 0 24 24"
               >
                 <path d="M12 2.024l2.516 5.18 5.718.83-4.134 4.04.975 5.685-5.075-2.662-5.075 2.662.975-5.685-4.134-4.04 5.718-.83 2.516-5.18m0-2.024l-3.668 7.571-8.332 1.209 6.042 5.885-1.427 8.311 7.385-3.882 7.385 3.882-1.427-8.311 6.042-5.885-8.332-1.209-3.668-7.571z" />
               </svg>
             </div>
-            <p className="ml-2 text-xs text-gray-600 cursor-pointer hover:underline py-1 pr-1 rounded bg-white">
+            <p className="ml-2 text-xs text-ivyPurple cursor-pointer hover:underline py-1 pr-1 rounded bg-white">
               (230 reviews)
             </p>
-          </div>
+          </div> */}
 
           <div className="flex">
-            <div className="font-novo text-bvPink/80 text-xs tracking-normal flex items-center gap-2 py-1 pr-4 rounded bg-white">
+            <div className="font-quicksand text-ivyPurple text-xs tracking-normal flex items-center gap-2 py-1 pr-4 rounded bg-white">
               <p>Follow us: </p>
               <a
                 href="https://www.instagram.com/yourprofile"
@@ -208,39 +209,29 @@ const ProductDetails: React.FC = () => {
               </select>
             </div>
           </div>
-
-          {/* Quantity Selector */}
-          {/* <div className="flex items-center mb-4">
-            <button
-              onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}
-              className="px-2 py-1 border border-gray-300"
-              disabled={quantity <= 1}
-            >
-              -
-            </button>
-            <span className="px-4">{quantity}</span>
-            <button
-              onClick={() => setQuantity(prev => prev + 1)}
-              className="px-2 py-1 border border-gray-300"
-            >
-              +
-            </button>
-          </div> */}
           <div className="bg-white py-1 my-3">
             <div className="h-px bg-ivyPurple/30"></div>
           </div>
 
           {/* Add to Cart Button */}
           <div className="flex flex-col justify-center items-center bg-white py-1">
-            <button
-              onClick={handleAddToCart}
-              disabled={!selectedSize || !selectedColor || !selectedVariant?.available || adding}
-              className="bg-ivyPurple text-white px-6 py-4 rounded-md w-1/2"
-            >
-              {adding ? 'Adding...' : selectedVariant?.available ? 'Add to Cart' : 'Out of Stock'}
-            </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={!selectedSize || !selectedColor || !selectedVariant?.available || adding}
+            className="bg-ivyPurple hover:bg-ivyPurple/95 transition text-white px-6 py-4 rounded-md w-1/2 font-noto tracking-wide text-sm"
+          >
+            {adding ? 'Adding...' :
+              (!selectedSize || !selectedColor) ? 'Select Color/Size' :
+              selectedVariant?.available ? 'Add to Cart' :
+              'Out of Stock'
+            }
+          </button>
           </div>
-
+            <div className="flex flex-col justify-center items-center bg-white py-2">
+            <button className="bg-orange-300/85 hover:bg-orange-300/75 transition text-white px-6 py-3 rounded-md w-1/3 text-xs font-noto tracking-widest">
+                  Contact Us
+            </button>
+            </div>
           <div className="bg-white py-1 my-3">
             <div className="h-px bg-ivyPurple/30"></div>
           </div>

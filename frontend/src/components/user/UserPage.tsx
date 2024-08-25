@@ -22,9 +22,9 @@ const UserPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-8 px-4 md:px-12 bg-gray-50">
+    <div className="h-screen w-full flex flex-col items-center py-8 px-4 md:px-12 border">
       {userData ? (
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl mb-8">
+        <div className="bg-white shadow-md rounded-lg p-8 w-full mb-8">
           <UserInfo
             name={userData.name}
             dob={userData.dob}

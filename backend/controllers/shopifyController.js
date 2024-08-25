@@ -369,111 +369,111 @@ exports.removeItemFromCart = async (req, res) => {
 };
 
 // Create Checkout Session
-exports.createCheckoutSession = async (req, res) => {
-  try {
-    const cartToken = req.cookies.shopifyCartToken;
+// exports.createCheckoutSession = async (req, res) => {
+//   try {
+//     const cartToken = req.cookies.shopifyCartToken;
 
-    if (!cartToken) {
-      return res.status(400).json({ message: 'No cart found.' });
-    }
+//     if (!cartToken) {
+//       return res.status(400).json({ message: 'No cart found.' });
+//     }
 
-    // Fetch the cart details using the cartToken
-    const cartQuery = `
-      query {
-        cart(id: "${cartToken}") {
-          id
-          lines(first: 10) {
-            edges {
-              node {
-                quantity
-                merchandise {
-                  ... on ProductVariant {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
+//     // Fetch the cart details using the cartToken
+//     const cartQuery = `
+//       query {
+//         cart(id: "${cartToken}") {
+//           id
+//           lines(first: 10) {
+//             edges {
+//               node {
+//                 quantity
+//                 merchandise {
+//                   ... on ProductVariant {
+//                     id
+//                   }
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     `;
 
-    const cartResponse = await axios.post(
-      `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`,
-      { query: cartQuery },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-        },
-      }
-    );
+//     const cartResponse = await axios.post(
+//       `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`,
+//       { query: cartQuery },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+//         },
+//       }
+//     );
 
-    const cartData = cartResponse.data.data.cart;
+//     const cartData = cartResponse.data.data.cart;
 
-    if (!cartData) {
-      return res.status(400).json({ message: 'Cart not found or empty.' });
-    }
+//     if (!cartData) {
+//       return res.status(400).json({ message: 'Cart not found or empty.' });
+//     }
 
-    // Build lineItems from the cart data
-    const lineItems = cartData.lines.edges.map(edge => ({
-      variantId: edge.node.merchandise.id,  // This is the correct variantId
-      quantity: edge.node.quantity,
-    }));
+//     // Build lineItems from the cart data
+//     const lineItems = cartData.lines.edges.map(edge => ({
+//       variantId: edge.node.merchandise.id,  // This is the correct variantId
+//       quantity: edge.node.quantity,
+//     }));
 
-    const query = `
-      mutation checkoutCreate($input: CheckoutCreateInput!) {
-        checkoutCreate(input: $input) {
-          checkout {
-            id
-            webUrl
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `;
+//     const query = `
+//       mutation checkoutCreate($input: CheckoutCreateInput!) {
+//         checkoutCreate(input: $input) {
+//           checkout {
+//             id
+//             webUrl
+//           }
+//           userErrors {
+//             field
+//             message
+//           }
+//         }
+//       }
+//     `;
 
-    const variables = {
-      input: {
-        lineItems,
-      },
-    };
+//     const variables = {
+//       input: {
+//         lineItems,
+//       },
+//     };
 
-    const shopifyResponse = await axios.post(
-      `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`,
-      { query, variables },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-        },
-      }
-    );
+//     const shopifyResponse = await axios.post(
+//       `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`,
+//       { query, variables },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+//         },
+//       }
+//     );
 
-    // Log the response for debugging
-    console.log('Shopify API Response:', JSON.stringify(shopifyResponse.data, null, 2));
+//     // Log the response for debugging
+//     console.log('Shopify API Response:', JSON.stringify(shopifyResponse.data, null, 2));
 
-    const responseData = shopifyResponse.data.data;
+//     const responseData = shopifyResponse.data.data;
 
-    if (!responseData || !responseData.checkoutCreate) {
-      return res.status(500).json({ message: 'Failed to create checkout session. Invalid response from Shopify.' });
-    }
+//     if (!responseData || !responseData.checkoutCreate) {
+//       return res.status(500).json({ message: 'Failed to create checkout session. Invalid response from Shopify.' });
+//     }
 
-    if (responseData.checkoutCreate.userErrors && responseData.checkoutCreate.userErrors.length > 0) {
-      return res.status(400).json({ message: responseData.checkoutCreate.userErrors[0].message });
-    }
+//     if (responseData.checkoutCreate.userErrors && responseData.checkoutCreate.userErrors.length > 0) {
+//       return res.status(400).json({ message: responseData.checkoutCreate.userErrors[0].message });
+//     }
 
-    const checkoutUrl = responseData.checkoutCreate.checkout.webUrl;
-    res.status(200).json({ checkoutUrl });
+//     const checkoutUrl = responseData.checkoutCreate.checkout.webUrl;
+//     res.status(200).json({ checkoutUrl });
 
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ message: 'Failed to create checkout session' });
-  }
-};
+//   } catch (error) {
+//     console.error('Error creating checkout session:', error);
+//     res.status(500).json({ message: 'Failed to create checkout session' });
+//   }
+// };
 
 exports.processOrderWebhook = (req, res) => {
   const { order } = req.body;
@@ -552,5 +552,85 @@ exports.updateItemQuantity = async (req, res) => {
   } catch (error) {
     console.error('Error updating item quantity:', error);
     res.status(500).json({ message: 'Failed to update item quantity' });
+  }
+};
+
+// Fetch all products within a specific collection
+exports.getProductsByCollection = async (req, res) => {
+  const { collectionHandle } = req.params;
+
+  const query = `
+    query {
+      collectionByHandle(handle: "${collectionHandle}") {
+        title
+        products(first: 20) {
+          edges {
+            node {
+              id
+              title
+              description
+              images(first: 1) {
+                edges {
+                  node {
+                    src
+                  }
+                }
+              }
+              variants(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                    }
+                    selectedOptions {
+                      name
+                      value
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(
+      'https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json',
+      { query },
+      {
+        headers: {
+          'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN, // Ensure this token is correct
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.data.errors) {
+      console.error('GraphQL errors:', response.data.errors);
+      return res.status(500).json({ message: 'Failed to fetch products by collection' });
+    }
+
+    const products = response.data.data.collectionByHandle.products.edges.map(product => ({
+      id: product.node.id,
+      title: product.node.title,
+      description: product.node.description,
+      imageUrl: product.node.images.edges[0]?.node.src || '',
+      variants: product.node.variants.edges.map(variant => ({
+        id: variant.node.id,
+        title: variant.node.title,
+        price: variant.node.price.amount,
+        options: variant.node.selectedOptions,
+      })),
+    }));
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products by collection:', error);
+    res.status(500).json({ message: 'Failed to fetch products by collection' });
   }
 };

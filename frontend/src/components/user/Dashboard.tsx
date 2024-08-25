@@ -2,6 +2,7 @@ import Navbar from '../layout/Navbar';
 import DropdownMenu from '../layout/DropdownMenu';
 import LogoHome from '../logo/LogoHome';
 import UserPage from './UserPage';
+import Breadcrumb from '../layout/Breadcrumb';
 
 
 export default function Dashboard() {
@@ -14,8 +15,9 @@ export default function Dashboard() {
                 <div className="w-full flex justify-center">
                     <LogoHome />
                 </div>
-                <div className="w-full flex">
+                <div className="w-full flex flex-col gap-8">
                     <DropdownMenu />
+                    <Breadcrumb />
                 </div>
                 <div className="w-full flex">
                     <UserPage />

@@ -1,36 +1,41 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-export default function ShippingBanner() {
-    const [isVisible, setIsVisible] = useState(true);
+export default function ShippingBanner({ isNavbarHovered }) {
+    const [isVisible, setIsVisible] = useState(false);  // Start as not visible
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 0) {
-                setIsVisible(false);
-            } else {
-                setIsVisible(true);
-            }
+            setIsVisible(window.scrollY === 0);
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsVisible(true);  // Make it visible after a 2-second delay
+        }, 2000);
+
+        return () => clearTimeout(timer);  // Clear timeout if the component is unmounted
+    }, []);
+
     return (
-        isVisible && (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ delay: 2, duration: 2 }}  // 3-second delay, 1-second fade-in duration
-            >
-                <p className="font-novo font-light tracking-widest text-ivyPurple text-xs transition-all duration-300 hover:opacity-0 cursor-default">
-                    Free Shipping on all orders over $150
-                </p>
-            </motion.div>
-        )
+        <motion.div
+            initial={{ opacity: 0 }}  // Start with opacity 0
+            animate={{ opacity: isNavbarHovered ? 0 : isVisible ? 1 : 0 }}  // Handle hover and visibility
+            transition={{ duration: 0.5 }}  // Smooth transition for both fade-in and fade-out
+            className="transition-opacity duration-500"
+        >
+            <p className="font-novo font-light tracking-wide text-ivyPurple text-xs transition-all duration-300">
+                This is a demo site created by <span className='font-semibold italic'>Reagan Ives</span>. All products are for demonstration purposes only.
+            </p>
+        </motion.div>
     );
 }
+
+
+
 
 

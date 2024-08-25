@@ -32,12 +32,14 @@ const LoginForm = () => {
     
             if (error.response) {
                 const { status, data } = error.response;
+
+                // Properly handle the different error cases
                 if (status === 404) {
                     setErrorMessage('User not found. Please check your email or register.');
-                } else if (status === 400 && data.error.includes('verify')) {
-                    setErrorMessage('Please verify your email to log in. Check your inbox for a verification link.');
+                } else if (status === 400 && data.error.includes('A verification email has been sent')) {
+                    setErrorMessage('Your account is not verified. A verification email has been sent.');
                 } else if (status === 400) {
-                    setErrorMessage('Invalid email or password. Please try again.');
+                    setErrorMessage(data.error || 'Invalid email or password. Please try again.');
                 } else {
                     setErrorMessage('An error occurred during login. Please try again later.');
                 }

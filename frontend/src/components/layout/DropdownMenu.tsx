@@ -21,7 +21,7 @@ export default function DropdownMenu() {
 
     return (
         <div
-            className="relative"
+            className="relative w-fit"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -47,7 +47,7 @@ export default function DropdownMenu() {
 
             {isOpen && (
                 <div className="absolute top-full left-0 w-48 bg-white shadow-lg z-10">
-                    <ul className="flex pt-4 flex-col text-black gap-2 text-xs font-noto text-ivyPurple tracking-widest transition-all">
+                    <ul className="flex pt-4 flex-col text-black gap-2 text-xs font-noto text-ivyPurple tracking-widest transition-all shadow-lg">
                         {/* Shirts Category */}
                         <li
                             className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
@@ -58,19 +58,19 @@ export default function DropdownMenu() {
                                 <span className="ml-1">Shirts</span>
                             </span>
                             {hoveredItem === 'Shirts' && (
-                            <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                            <div className="absolute top-0 left-full w-full h-full bg-white z-20 shadow-lg">
                                 <div className='bg-white'>
                                     <ul className="flex flex-col w-full h-full gap-2 bg-white">
                                         <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
-                                            <Link to="/categories/shirts/oxfords" className="flex items-center w-full">
+                                            <Link to="/oxford-cotton-button-downs" className="flex items-center w-full">
                                             <ArrowRightIcon sx={{ fontSize: 16 }} />
                                             <span className="ml-1 text-xs">Oxfords</span>
                                             </Link>
                                         </li>
                                         <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
-                                            <Link to="/categories/shirts/polos" className="flex items-center w-full">
+                                            <Link to="/short-sleeve-button-downs" className="flex items-center w-full">
                                             <ArrowRightIcon sx={{ fontSize: 16 }} />
-                                            <span className="ml-1">Polos</span>
+                                            <span className="ml-1">Short Sleeve</span>
                                             </Link>
                                         </li>
                                     </ul>
@@ -89,17 +89,17 @@ export default function DropdownMenu() {
                                 <span className="ml-1">Jackets & Outerwear</span>
                             </span>
                             {hoveredItem === 'Jackets & Outerwear' && (
-                                <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                                <div className="absolute top-0 left-full w-full h-full bg-white z-20 shadow-lg">
                                     <div className='bg-white'>
                                         <ul className="flex flex-col w-full h-full gap-2 bg-white">
                                             <li className="py-2 bg-white hover:bg-orange-200 cursor-pointer flex items-center">
-                                                <Link to="/categories/jackets&outerwear/anoraks" className="flex items-center w-full">
+                                                <Link to="/anoraks" className="flex items-center w-full">
                                                 <ArrowRightIcon sx={{ fontSize: 16 }} />
                                                 <span className="ml-1">Anoraks</span>
                                                 </Link>
                                             </li>
                                             <li className="py-2 bg-white hover:bg-orange-200 cursor-pointer flex items-center">
-                                                <Link to="/categories/jackets&outerwear/vintages22" className="flex items-center w-full">
+                                                <Link to="/S-22-jackets" className="flex items-center w-full">
                                                 <ArrowRightIcon sx={{ fontSize: 16 }} />
                                                 <span className="ml-1">Vintage S-22</span>
                                                 </Link>
@@ -120,17 +120,17 @@ export default function DropdownMenu() {
                                 <span className="ml-1">Accessories</span>
                             </span>
                             {hoveredItem === 'Accessories' && (
-                                <div className="absolute top-0 left-full w-full h-full bg-white z-20">
+                                <div className="absolute top-0 left-full w-full h-full bg-white z-20 shadow-lg">
                                 <div className='bg-white'>
                                     <ul className="flex flex-col w-full h-full gap-2 bg-white">
                                         <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
-                                            <Link to="/categories/accessories/belts" className="flex items-center w-full">
+                                            <Link to="/belts" className="flex items-center w-full">
                                             <ArrowRightIcon sx={{ fontSize: 16 }} />
                                             <span className="ml-1 text-xs">Belts</span>
                                             </Link>
                                         </li>
                                         <li className="py-2 bg-white hover:bg-orange-200 flex items-center">
-                                            <Link to="/categories/accessories/socks" className="flex items-center w-full">
+                                            <Link to="/socks" className="flex items-center w-full">
                                             <ArrowRightIcon sx={{ fontSize: 16 }} />
                                             <span className="ml-1">Socks</span>
                                             </Link>
@@ -146,7 +146,7 @@ export default function DropdownMenu() {
                             className="py-2 hover:bg-orange-200 cursor-pointer relative flex items-center"
                             onMouseEnter={() => handleItemMouseEnter('New Arrivals')}
                         >
-                            <Link to="/categories/newarrivals" className="flex items-center w-full">
+                            <Link to="/new-arrivals" className="flex items-center w-full">
                                 <ArrowRightIcon sx={{ fontSize: 16 }} />
                                 <span className="ml-1">New Arrivals</span>
                             </Link>

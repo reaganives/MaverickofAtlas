@@ -3,17 +3,20 @@ import { motion } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import axios from '../../axiosConfig'; // Ensure this path is correct
 
+interface Variant {
+  price: string;
+}
+
 interface Item {
-  _id: string;
-  name: string;
+  id: string;
+  title: string;
   description: string;
-  price: number;
+  variants: Variant[];
   imageUrl: string;
-  style: string;
 }
 
 export default function CollectionItemsGrid() {
-  const { categoryName, collectionName } = useParams<{ categoryName: string, collectionName: string }>();
+  const { collectionHandle } = useParams<{ collectionHandle: string }>();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +24,9 @@ export default function CollectionItemsGrid() {
   useEffect(() => {
     const fetchCollectionItems = async () => {
       try {
-        const response = await axios.get(`/categories/${categoryName}/${collectionName}`);
+        const response = await axios.get(`/shopify/collections/${collectionHandle}`);
         console.log(response.data); // Log the data for debugging
-        setItems(response.data.items);
+        setItems(response.data); // Adjust to match backend response structure
         setLoading(false);
       } catch (err) {
         console.error('Error fetching items:', err);
@@ -33,7 +36,12 @@ export default function CollectionItemsGrid() {
     };
 
     fetchCollectionItems();
-  }, [categoryName, collectionName]);
+  }, [collectionHandle]);
+
+  const getProductIdFromGlobalId = (globalId: string) => {
+    // Extract the numeric ID from the global ID
+    return globalId.split('/').pop();
+  };
 
   if (loading) {
     return <div className="flex justify-center mt-20 mb-96 w-full"><p className="text-ivyPurple text-xs py-.5 px-2 tracking-widest font-roboto mb-96">Loading Items...</p></div>;
@@ -51,21 +59,23 @@ export default function CollectionItemsGrid() {
       transition={{ type: 'spring', stiffness: 70 }}
     >
       <div className="text-xs font-semibold tracking-wide font-noto text-ivyPurple mb-4">
-        {collectionName.toUpperCase()}
+        {collectionHandle?.toUpperCase()}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((item) => (
-          <div key={item._id} className="flex flex-col items-center">
-            <Link to={`/collections/${collectionName}`}>
+          <div key={item.id} className="flex flex-col items-center">
+            <Link to={`/${collectionHandle}/${getProductIdFromGlobalId(item.id)}`}>
               <img
                 src={item.imageUrl}
-                alt={item.name}
+                alt={item.title}
                 className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer"
               />
             </Link>
             <div className="text-center">
-              <p className="font-noto text-md font-semibold">{item.name}</p>
-              <p className="font-noto text-sm text-gray-500">${item.price}</p>
+              <p className="font-noto text-md font-semibold">{item.title}</p>
+              {item.variants.length > 0 && (
+                <p className="font-noto text-sm text-gray-500">${item.variants[0].price}0</p>
+              )}
             </div>
           </div>
         ))}
@@ -73,4 +83,8 @@ export default function CollectionItemsGrid() {
     </motion.div>
   );
 }
+
+
+
+
 

@@ -7,6 +7,7 @@ const AWS = require('aws-sdk');
 const crypto = require('crypto');
 const Order = require('../models/Order');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
 // Define Joi schemas
 const registrationSchema = Joi.object({
@@ -42,40 +43,79 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
+//Log in function
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found. Please register or check your email.' });
     }
 
+    // Check if the user is verified
+    if (!user.isVerified) {
+      // Generate a new verification token (or reuse the existing one)
+      const verificationToken = user.verificationToken || crypto.randomBytes(32).toString('hex');
+      if (!user.verificationToken) {
+        user.verificationToken = verificationToken;
+        await user.save();  // Save the verification token if newly generated
+      }
+
+      // Generate verification link
+      const verificationLink = `http://localhost:5173/verify-email/${verificationToken}`;
+
+      // Set up email parameters
+      const params = {
+        Destination: { ToAddresses: [email] },
+        Message: {
+          Body: {
+            Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
+          },
+          Subject: { Data: 'Verify Your Email' }
+        },
+        Source: process.env.EMAIL_SOURCE
+      };
+
+      // Send the email
+      await ses.sendEmail(params).promise();
+      console.log('Verification email sent.');
+
+      // Return the proper message and stop further processing
+      return res.status(400).json({ error: 'Your account is not verified. A verification email has been sent.' });
+    }
+
+    // Check if the password matches
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
+    // Clear guest token
     res.clearCookie('guestToken');
 
+    // Generate access and refresh tokens
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = generateRefreshToken(user._id);
 
+    // Set access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 1 * 60 * 60 * 1000,
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
+    // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    // Retrieve the user's existing Shopify cart token from the database
+    // Retrieve the user's existing Shopify cart token or create a new one
     let cartToken = user.shopifyCartToken;
 
     if (!cartToken) {
@@ -106,6 +146,7 @@ const login = async (req, res) => {
       await user.save();  // Save the cart token to the user record
     }
 
+    // Set cart token cookie
     res.cookie('shopifyCartToken', cartToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -119,7 +160,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
-
 
 // Register function
 const register = async (req, res) => {
@@ -399,6 +439,42 @@ const checkAuth = (req, res) => {
   }
 };
 
+const subscribeNewsletter = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    // Send confirmation/welcome email
+    const params = {
+      Source: process.env.EMAIL_SOURCE, // Must be a verified SES email
+      Destination: {
+        ToAddresses: [email],
+      },
+      Message: {
+        Subject: {
+          Data: 'Welcome to Our Newsletter!',
+        },
+        Body: {
+          Html: {
+            Data: `<p>Thank you for subscribing to our newsletter!</p>
+                   <p>Stay tuned for updates and promotions.</p>`,
+          },
+        },
+      },
+    };
+
+    await ses.sendEmail(params).promise();
+
+    res.status(200).json({ message: 'Subscription successful, welcome email sent!' });
+  } catch (error) {
+    console.error('Error sending email or saving subscriber:', error);
+    res.status(500).json({ message: 'Error subscribing to newsletter' });
+  }
+};
+
 module.exports = {
     login,
     register,
@@ -408,5 +484,6 @@ module.exports = {
     refreshToken,
     logout,
     getCurrentUser,
-    checkAuth
+    checkAuth,
+    subscribeNewsletter
 };

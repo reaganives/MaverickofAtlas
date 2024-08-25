@@ -2,6 +2,7 @@ import DropdownMenu from "../layout/DropdownMenu";
 import LogoHome from "../logo/LogoHome";
 import Navbar from "../layout/Navbar";
 import CollectionsGrid from "./CollectionsGrid";
+import Breadcrumb from "../layout/Breadcrumb";
 
 
 export default function LoginPage () {
@@ -14,8 +15,9 @@ export default function LoginPage () {
                 <div className="w-full flex justify-center">
                     <LogoHome />
                 </div>
-                <div className="w-full flex">
+                <div className="w-full flex flex-col gap-8">
                     <DropdownMenu />
+                    <Breadcrumb />
                 </div>
                 <div className="w-full flex justify-center mb-40">
                     <CollectionsGrid />

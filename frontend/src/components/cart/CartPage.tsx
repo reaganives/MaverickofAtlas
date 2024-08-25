@@ -3,6 +3,7 @@ import Navbar from '../layout/Navbar';
 import LogoHome from '../logo/LogoHome';
 import DropdownMenu from '../layout/DropdownMenu';
 import ShoppingCart from './ShoppingCart';
+import Breadcrumb from '../layout/Breadcrumb';
 
 
 export default function CartPage() {
@@ -15,8 +16,9 @@ export default function CartPage() {
                 <div className="w-full flex justify-center">
                     <LogoHome />
                 </div>
-                <div className="w-full flex">
+                <div className="w-full flex flex-col gap-8">
                     <DropdownMenu />
+                    <Breadcrumb />
                 </div>
                 <div className="w-full flex mb-40">
                     <ShoppingCart />

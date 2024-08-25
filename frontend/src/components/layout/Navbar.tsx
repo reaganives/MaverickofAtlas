@@ -5,33 +5,28 @@ import axios from '../../axiosConfig';
 import ShippingBanner from './ShippingBanner';
 
 export default function Navbar() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);  // Track authentication state
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isHovered, setIsHovered] = useState(false); 
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Make an API call to check if the user is authenticated
         const checkAuthStatus = async () => {
             try {
                 const response = await axios.get('/auth/check-auth');
-                setIsAuthenticated(response.data.isAuthenticated);  // Set to true if authenticated
+                setIsAuthenticated(response.data.isAuthenticated);
             } catch (error) {
-                console.error('Error checking authentication status:', error);
                 setIsAuthenticated(false);
             }
         };
-
         checkAuthStatus();
     }, []);
 
     const handleLogout = async () => {
         try {
-            // Make an API call to log the user out (clear cookies server-side)
             await axios.post('/auth/logout');
-            setIsAuthenticated(false);  // Update authentication state
-            navigate('/login');  // Redirect to login page
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
+            setIsAuthenticated(false); 
+            navigate('/login');
+        } catch (error) {}
     };
 
     const handleRedirect = () => {
@@ -39,18 +34,21 @@ export default function Navbar() {
     };
 
     return (
-        <div className="w-full items-center text-xs font-quicksand text-ivyPurple">
+        <div
+            className="w-full items-center text-xs font-quicksand text-ivyPurple"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             <ul className="flex justify-between items-center tracking-wide bg-emerald-50">
                 <div className="flex gap-8">
                     <li className="font-poiret bg-ivyPurple text-white px-2 py-px tracking-wider">
                         <a href="/">Maverick of Atlas</a>
                     </li>
-                    <li className="py-px tracking-wide hover:text-ivyPurple/50 transition-all">
+                    {/* <li className="py-px tracking-wide hover:text-ivyPurple/50 transition-all">
                         <a href="/about" className="bg-violet-200">About</a>
-                    </li>
+                    </li> */}
                 </div>
                 <div className="flex gap-8 items-center">
-                    {/* Conditionally render Login/Logout based on authentication state */}
                     {isAuthenticated ? (
                         <>
                             <li className="hover:text-ivyPurple/50 transition-all cursor-pointer bg-orange-200">
@@ -76,7 +74,6 @@ export default function Navbar() {
                             </li>
                         </>
                     )}
-
                     <div className="flex gap-20">
                         <li
                             className="group flex hover:text-ivyPurple/50 transition-all gap-2 cursor-pointer bg-red-100"
@@ -94,8 +91,8 @@ export default function Navbar() {
             </ul>
 
             {/* Centered and Fixed Shipping Banner */}
-            <div className="fixed inset-x-0 top-8 flex justify-center">
-                <ShippingBanner />
+            <div className="fixed inset-x-0 top-6 pt-2 flex justify-center">
+                <ShippingBanner isNavbarHovered={isHovered} />
             </div>
         </div>
     );
