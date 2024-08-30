@@ -25,7 +25,7 @@ router.post('/cart/remove',verifyUserOrGuestToken, removeItemFromCart);
 // router.post('/checkout',verifyUserOrGuestToken, createCheckoutSession);
 
 // Process order webhook
-router.post('/webhooks/orders/create', processOrderWebhook);
+// router.post('/webhooks/orders/create', processOrderWebhook);
 
 // Update Quantity
 router.post('/cart/update',verifyUserOrGuestToken, updateItemQuantity);
