@@ -1,7 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-export default function ShippingBanner({ isNavbarHovered }) {
+interface ShippingBannerProps {
+    isNavbarHovered: boolean;
+}
+
+export default function ShippingBanner({ isNavbarHovered }: ShippingBannerProps) {
     const [isVisible, setIsVisible] = useState(false);  // Start as not visible
 
     useEffect(() => {
@@ -34,6 +38,7 @@ export default function ShippingBanner({ isNavbarHovered }) {
         </motion.div>
     );
 }
+
 
 
 

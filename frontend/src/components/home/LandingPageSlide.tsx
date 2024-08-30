@@ -1,6 +1,5 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import React from 'react';
 import { motion } from 'framer-motion';
 import Slider from 'react-slick';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
@@ -15,7 +14,13 @@ const images = [
     '/photos/carousel/featuredAlt.jpeg'
 ];
 
-function SampleNextArrow(props) {
+interface ArrowProps {
+    className?: string;
+    style?: React.CSSProperties;
+    onClick?: () => void;
+}
+
+function SampleNextArrow(props: ArrowProps) {
     const { className, style, onClick } = props;
     return (
         <div
@@ -28,7 +33,7 @@ function SampleNextArrow(props) {
     );
 }
 
-function SamplePrevArrow(props) {
+function SamplePrevArrow(props: ArrowProps) {
     const { className, style, onClick } = props;
     return (
         <div
@@ -94,6 +99,7 @@ export default function LandingPageSlide() {
         </motion.div>
     );
 }
+
 
 
 

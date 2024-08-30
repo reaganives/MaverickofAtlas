@@ -1,13 +1,8 @@
-import React from 'react';
 import Navbar from '../layout/Navbar';
 import LogoHome from '../logo/LogoHome';
 import DropdownMenu from '../layout/DropdownMenu';
 import ProductFull from './ProductFull';
 import Breadcrumb from '../layout/Breadcrumb';
-import HomeDivider from '../layout/HomeDivider';
-import Footer from '../layout/Footer';
-import ProductPageTest from './ProductPageTest';
-import ProductDetailsWrapper from './ProductDetailsWrapper';
 import MobileNavbar from '../layout/MobileNavbar';
 
 

@@ -3,7 +3,7 @@ import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 
 interface ProductImage {
-  id: string;
+  id?: string;
   src: string;
 }
 
@@ -53,21 +53,6 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
               />
             </div>
           ))}
-
-          {/* Render the fourth image if it exists */}
-          {/* {products[3] && (
-            <div
-              key={products[3].id}
-              className="w-24 h-24 hover:ring-2 transition ring-black col-start-1 row-start-2"
-              onMouseEnter={() => setMainImage(products[3].src)}
-            >
-              <img
-                src={products[3].src}
-                alt="Thumbnail"
-                className="object-cover w-full h-full transition cursor-pointer"
-              />
-            </div>
-          )} */}
         </div>
       )}
     </div>
@@ -75,6 +60,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
 };
 
 export default ProductImages;
+
 
 
 

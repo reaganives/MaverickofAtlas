@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance
 const instance = axios.create({
-  baseURL: 'http://54.176.104.188:4000/api',  // Replace with your backend URL
+  baseURL: 'http://localhost:4000/api',  // Replace with your backend URL
   timeout: 5000,  // Increased timeout for more flexibility
   headers: {
     'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ instance.interceptors.response.use(
 
       try {
         // Try to refresh the access token by making a request to the refresh token endpoint
-        const refreshResponse = await instance.post('/auth/refresh-token');
+        await instance.post('/auth/refresh-token');
 
         // If successful, retry the original request with the new access token
         return instance(originalRequest);
@@ -42,4 +42,5 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+
 

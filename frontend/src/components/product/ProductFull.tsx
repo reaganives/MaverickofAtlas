@@ -1,12 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductImages from './ProductImages';
 import ProductDetailsWrapper from './ProductDetailsWrapper';
 import axios from '../../axiosConfig';
 
+interface Variant {
+  id: string;
+  size: string;
+  color: string;
+  price: string;
+  imageUrl: string;
+  available: boolean;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  variants: Variant[];
+  images: Array<{ src: string }>;
+}
+
 export default function ProductFull() {
   const { productId } = useParams<{ productId: string }>();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

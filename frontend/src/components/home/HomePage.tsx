@@ -2,11 +2,7 @@ import NewArrivalsGrid from "./NewArrivalsGrid";
 import LandingPageSlide from "./LandingPageSlide";
 import LogoHome from "../logo/LogoHome";
 import Navbar from "../layout/Navbar";
-import HomeDivider from "../layout/HomeDivider";
-import Footer from "../layout/Footer";
-import DropdownMenu from "../layout/DropdownMenu";
 import NewsLetterSignup from "./Newsletter";
-import ShippingBanner from "../layout/ShippingBanner";
 import MobileNavbar from "../layout/MobileNavbar";
 
 export default function HomePage() {

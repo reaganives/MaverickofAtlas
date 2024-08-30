@@ -102,16 +102,16 @@ const login = async (req, res) => {
     // Set access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'None',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
     // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'None',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -149,8 +149,8 @@ const login = async (req, res) => {
     // Set cart token cookie
     res.cookie('shopifyCartToken', cartToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'None',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -236,8 +236,8 @@ const verifyEmail = async (req, res) => {
 
         res.cookie('accessToken', jwtToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: 'None',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Strict',
           maxAge: 1 * 60 * 60 * 1000 // 1 hour
         });
 
@@ -267,7 +267,7 @@ const sendPasswordReset = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ success: process.env.NODE_ENV === 'production', message: 'User not found' });
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -288,7 +288,7 @@ const sendPasswordReset = async (req, res) => {
         res.status(200).json({ success: true, message: 'Password reset link sent' });
     } catch (error) {
         console.error('Error sending email via AWS SES:', error);
-        res.status(500).json({ success: false, message: 'Failed to send reset email' });
+        res.status(500).json({ success: process.env.NODE_ENV === 'production', message: 'Failed to send reset email' });
     }
 };
 
@@ -300,7 +300,7 @@ const resetPassword = async (req, res) => {
     // Validate using Joi
     const { error } = passwordSchema.validate({ password, confirmPassword });
     if (error) {
-        return res.status(400).json({ success: false, message: error.details[0].message });
+        return res.status(400).json({ success: process.env.NODE_ENV === 'production', message: error.details[0].message });
     }
 
     try {
@@ -310,13 +310,13 @@ const resetPassword = async (req, res) => {
         // Find the user by ID
         const user = await User.findById(decoded.id);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ success: process.env.NODE_ENV === 'production', message: 'User not found' });
         }
 
         // Check if new password is the same as the old password
         const isSameAsOldPassword = await bcrypt.compare(password, user.password);
         if (isSameAsOldPassword) {
-            return res.status(400).json({ success: false, message: 'New password cannot be the same as the old password' });
+            return res.status(400).json({ success: process.env.NODE_ENV === 'production', message: 'New password cannot be the same as the old password' });
         }
 
         // Hash the new password
@@ -330,9 +330,9 @@ const resetPassword = async (req, res) => {
     } catch (error) {
         console.error('Error resetting password:', error);
         if (error.name === 'TokenExpiredError') {
-            return res.status(400).json({ success: false, message: 'Token has expired' });
+            return res.status(400).json({ success: process.env.NODE_ENV === 'production', message: 'Token has expired' });
         }
-        res.status(500).json({ success: false, message: 'Failed to reset password' });
+        res.status(500).json({ success: process.env.NODE_ENV === 'production', message: 'Failed to reset password' });
     }
 };
 
@@ -351,8 +351,8 @@ const refreshToken = (req, res) => {
     // Send new access token back in a cookie
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'None',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 1 * 60 * 60 * 1000 // 1 hour
     });
 
@@ -375,9 +375,9 @@ const logout = async (req, res) => {
     }
 
     // Clear the access and refresh tokens and the shopifyCartToken
-    res.clearCookie('accessToken', { httpOnly: true, secure: false, sameSite: 'None' });
-    res.clearCookie('refreshToken', { httpOnly: true, secure: false, sameSite: 'None' });
-    res.clearCookie('shopifyCartToken', { httpOnly: true, secure: false, sameSite: 'None' });
+    res.clearCookie('accessToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('shopifyCartToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
 
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -428,14 +428,14 @@ const checkAuth = (req, res) => {
   const token = req.cookies.accessToken;
 
   if (!token) {
-    return res.json({ isAuthenticated: false });
+    return res.json({ isAuthenticated: process.env.NODE_ENV === 'production' });
   }
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
     return res.json({ isAuthenticated: true });
   } catch (err) {
-    return res.json({ isAuthenticated: false });
+    return res.json({ isAuthenticated: process.env.NODE_ENV === 'production' });
   }
 };
 

@@ -218,8 +218,8 @@ exports.addItemToCart = async (req, res) => {
       cartId = cartData.id;
       res.cookie('shopifyCartToken', cartId, {
         httpOnly: true,
-        secure: false,
-        sameSite: 'None',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
     }

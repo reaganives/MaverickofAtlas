@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from '../../axiosConfig';
 import FormFields from './FormFields';  // The new component that holds the fields
-import { useNavigate } from 'react-router-dom';
 
 const RegistrationForm = () => {
   const [name, setName] = useState('');
@@ -13,7 +12,6 @@ const RegistrationForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

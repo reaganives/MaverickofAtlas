@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'; // Import Link for dynamic routing
 
 export default function DropdownMenu() {
     const [isOpen, setIsOpen] = useState(false);
-    const [hoveredItem, setHoveredItem] = useState(null);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);  // Explicitly type hoveredItem
 
     const handleMouseEnter = () => {
         setIsOpen(true);
@@ -15,7 +15,7 @@ export default function DropdownMenu() {
         setHoveredItem(null);
     };
 
-    const handleItemMouseEnter = (item) => {
+    const handleItemMouseEnter = (item: string) => {  // Explicitly type the item as a string
         setHoveredItem(item); // Set the hovered item to trigger the second dropdown
     };
 
@@ -157,4 +157,5 @@ export default function DropdownMenu() {
         </div>
     );
 }
+
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from '../../axiosConfig';
+import { isAxiosError } from 'axios';  // Import isAxiosError from axios
+import axios from '../../axiosConfig'; // Import axios from config/axios
 
 interface User {
   _id: string;
@@ -48,20 +49,17 @@ export const useUserData = () => {
 
   const fetchUserDataAndOrders = async () => {
     try {
-      // Fetch user data
       const userResponse = await axios.get('/auth/me');
       const user = userResponse.data.user;
       setUserData(user);
 
       try {
-        // Fetch user orders
         const orderResponse = await axios.get(`/orders/user/${user._id}`);
         const orders: Order[] = orderResponse.data.orders || [];
 
         if (orders.length === 0) {
           setOrderHistory([]); // Handle case where there are no orders
         } else {
-          // Fetch detailed items, shipping, and payment for each order
           const orderDetailsPromises = orders.map(async (order: Order) => {
             try {
               const [shippingResponse, paymentResponse] = await Promise.all([
@@ -75,7 +73,11 @@ export const useUserData = () => {
                 payment: paymentResponse.data.payment,
               };
             } catch (err) {
-              console.error(`Error fetching shipping or payment for order ${order._id}`, err);
+              if (err instanceof Error) {
+                console.error(`Error fetching shipping or payment for order ${order._id}`, err.message);
+              } else {
+                console.error(`Unknown error fetching shipping or payment for order ${order._id}`, err);
+              }
               return { ...order }; // Return the order even if shipping/payment fails
             }
           });
@@ -84,26 +86,31 @@ export const useUserData = () => {
           setOrderHistory(detailedOrders);
         }
       } catch (orderError) {
-        if (orderError.response && orderError.response.status === 404) {
+        if (isAxiosError(orderError) && orderError.response?.status === 404) {
           setOrderHistory([]); // No orders found
         } else {
           throw orderError; // Re-throw other errors
         }
       }
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        // If 401 Unauthorized, it means the access token is likely expired, and we should handle the refresh flow
+      if (isAxiosError(err) && err.response?.status === 401) {
         try {
-          // Attempt to refresh the token
           await axios.post('/auth/refresh-token');
-          // Retry fetching user data and orders after refreshing the token
           await fetchUserDataAndOrders();
         } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
+          if (refreshError instanceof Error) {
+            console.error('Token refresh failed:', refreshError.message);
+          } else {
+            console.error('Unknown error during token refresh:', refreshError);
+          }
           setError('Session expired. Please log in again.');
         }
       } else {
-        console.error('Error fetching user or order data:', err);
+        if (err instanceof Error) {
+          console.error('Error fetching user or order data:', err.message);
+        } else {
+          console.error('Unknown error fetching user or order data:', err);
+        }
         setError('Failed to load user or order data');
       }
     } finally {
@@ -117,4 +124,3 @@ export const useUserData = () => {
 
   return { userData, orderHistory, loading, error };
 };
-

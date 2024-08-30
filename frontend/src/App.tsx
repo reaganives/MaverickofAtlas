@@ -5,7 +5,6 @@ import RegistrationPage from './components/registration/RegistrationPage';
 import HomePage from './components/home/HomePage';
 import Footer from './components/layout/Footer';
 import HomeDivider from './components/layout/HomeDivider';
-import AboutPage from './components/about/AboutPage';
 import CartPage from './components/cart/CartPage';
 import Dashboard from './components/user/Dashboard';
 import ProtectedRoute from './components/layout/ProtectedRoute';
@@ -16,7 +15,6 @@ import CollectionsPage from './components/categories/CollectionsPage';
 import RequestNewPassPage from './components/login_logout/RequestNewPassPage';
 import ResetPassPage from './components/login_logout/ResetPassPage';
 import ScrollToTop from './components/layout/ScrollToTop';
-import NotFound from './components/layout/NotFound';
 
 function App() {
   return (

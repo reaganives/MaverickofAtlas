@@ -1,4 +1,3 @@
-import React from 'react';
 import Navbar from '../layout/Navbar';
 import LogoHome from '../logo/LogoHome';
 import DropdownMenu from '../layout/DropdownMenu';

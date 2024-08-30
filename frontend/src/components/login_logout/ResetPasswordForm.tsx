@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ResetPasswordForm = () => {
-  const { token } = useParams();  // Extract the token from the URL
+  const { token } = useParams<{ token: string }>();  // Extract the token from the URL and type it
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -33,12 +33,16 @@ const ResetPasswordForm = () => {
       } else {
         setErrorMessage(response.data.message || 'Failed to reset password');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle server or network errors
-      if (error.response && error.response.data.message) {
-        setErrorMessage(error.response.data.message);
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.data.message) {
+          setErrorMessage(error.response.data.message);
+        } else {
+          setErrorMessage('An error occurred. Please try again.');
+        }
       } else {
-        setErrorMessage('An error occurred. Please try again.');
+        setErrorMessage('An unexpected error occurred. Please try again.');
       }
     }
   };
@@ -80,6 +84,7 @@ const ResetPasswordForm = () => {
 };
 
 export default ResetPasswordForm;
+
 
 
 

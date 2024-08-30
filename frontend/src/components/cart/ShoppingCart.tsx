@@ -4,43 +4,88 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import axios from '../../axiosConfig';
 
-export default function ShoppingCart() {
-  const [cartItems, setCartItems] = useState<any[]>([]);  // Cart items default to an empty array
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [subtotal, setSubtotal] = useState(0);
+// Define the interface for Merchandise
+interface Merchandise {
+  price: {
+    amount: string;
+  };
+  product?: {
+    title?: string;
+    images?: {
+      edges?: { node: { src: string } }[];
+    };
+  };
+  selectedOptions?: {
+    name: string;
+    value: string;
+  }[];
+  color?: string;
+  size?: string;
+}
 
-  // Helper function to calculate subtotal
-  const calculateSubtotal = (items: any[]) => {
-    return items.reduce((acc, item) => {
-      const price = parseFloat(item.merchandise.price.amount);
-      const quantity = item.quantity;
-      return acc + price * quantity;
-    }, 0).toFixed(2);
+// Define the interface for CartItem
+interface CartItem {
+  id: string;
+  quantity: number;
+  merchandise: Merchandise;
+}
+
+// Define the interface for CartResponse
+interface CartResponse {
+  cart: {
+    id: string;
+    lines: {
+      edges: Array<{
+        node: CartItem;
+      }>;
+    };
+  };
+}
+
+export default function ShoppingCart() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [subtotal, setSubtotal] = useState('0.00');
+
+  const calculateSubtotal = (items: CartItem[]): string => {
+    return items
+      .reduce((acc, item) => {
+        const price = parseFloat(item.merchandise.price.amount);
+        const quantity = item.quantity;
+        return acc + price * quantity;
+      }, 0)
+      .toFixed(2);
   };
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get('/shopify/cart');
-      const fetchedItems = response?.data?.lines?.edges || [];
-
-      // Ensure all properties (like color, size) are preserved correctly
-      const updatedItems = fetchedItems.map(({ node }) => ({
+      const response = await axios.get<{
+        lines: any; data: CartResponse 
+}>('/shopify/cart');
+      console.log("Cart Data from Shopify:", response.data);  // Log the entire response to debug
+      
+      if (!response.data || !response.data.lines) {
+        throw new Error('Cart data structure is invalid or empty.');
+      }
+  
+      const fetchedItems = response.data.lines.edges || [];
+  
+      const updatedItems: CartItem[] = fetchedItems.map(({ node }: { node: CartItem }) => ({
         id: node.id,
         quantity: node.quantity,
         merchandise: {
           ...node.merchandise,
-          color: node.merchandise.selectedOptions?.find(option => option.name === 'Color')?.value || 'N/A',
-          size: node.merchandise.selectedOptions?.find(option => option.name === 'Size')?.value || 'N/A',
+          color: node.merchandise.selectedOptions?.find((option: { name: string; }) => option.name === 'Color')?.value || 'N/A',
+          size: node.merchandise.selectedOptions?.find((option: { name: string; }) => option.name === 'Size')?.value || 'N/A',
         },
       }));
-
+  
       setCartItems(updatedItems);
       setSubtotal(calculateSubtotal(updatedItems));
+  
       setLoading(false);
     } catch (err) {
       console.error('Error fetching cart:', err);
-      setError('Failed to load cart');
       setLoading(false);
     }
   };
@@ -52,30 +97,18 @@ export default function ShoppingCart() {
   const handleRemoveItem = async (lineItemId: string) => {
     try {
       await axios.post('/shopify/cart/remove', { lineItemId });
-      fetchCart();  // Re-fetch the cart to ensure properties are preserved
+      fetchCart();
     } catch (err) {
       console.error('Error removing item from cart:', err);
-      setError('Failed to remove item from cart.');
     }
   };
 
   const handleUpdateQuantity = async (lineItemId: string, newQuantity: number) => {
     try {
       await axios.post('/shopify/cart/update', { lineItemId, quantity: newQuantity });
-      fetchCart();  // Re-fetch the cart to ensure properties are preserved
+      fetchCart();
     } catch (err) {
       console.error('Error updating item quantity:', err);
-      setError('Failed to update item quantity.');
-    }
-  };
-
-  const handleCheckout = async () => {
-    try {
-      const response = await axios.post('/shopify/checkout');
-      const { checkoutUrl } = response.data;
-      window.location.href = checkoutUrl;  // Redirect to Shopify checkout
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
     }
   };
 
@@ -111,7 +144,7 @@ export default function ShoppingCart() {
 
       {cartItems.map(({ id, quantity, merchandise }) => {
         const { price, product, color, size } = merchandise;
-        const productName = product?.title || merchandise.title || 'Unnamed Product';
+        const productName = product?.title || 'N/A';
 
         return (
           <div key={id} className="flex justify-between mb-6">
@@ -160,9 +193,5 @@ export default function ShoppingCart() {
     </div>
   );
 }
-
-
-
-
 
 

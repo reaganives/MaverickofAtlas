@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 

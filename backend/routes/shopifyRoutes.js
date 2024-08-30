@@ -1,5 +1,5 @@
 const express = require('express');
-const { getNewArrivals, getProductDetails, addItemToCart, fetchCart, removeItemFromCart, processOrderWebhook, updateItemQuantity, getProductsByCollection } = require('../controllers/shopifyController');
+const { getNewArrivals, getProductDetails, addItemToCart, fetchCart, removeItemFromCart, updateItemQuantity, getProductsByCollection } = require('../controllers/shopifyController');
 const router = express.Router();
 const verifyUserOrGuestToken = require('../middleware/verifyToken');
 
