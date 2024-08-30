@@ -102,16 +102,16 @@ const login = async (req, res) => {
     // Set access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: false,
+      sameSite: 'Lax',
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
     // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: false,
+      sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -149,8 +149,8 @@ const login = async (req, res) => {
     // Set cart token cookie
     res.cookie('shopifyCartToken', cartToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: false,
+      sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -236,8 +236,8 @@ const verifyEmail = async (req, res) => {
 
         res.cookie('accessToken', jwtToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Strict',
+          secure: false,
+          sameSite: 'Lax',
           maxAge: 1 * 60 * 60 * 1000 // 1 hour
         });
 
@@ -351,8 +351,8 @@ const refreshToken = (req, res) => {
     // Send new access token back in a cookie
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: false,
+      sameSite: 'Lax',
       maxAge: 1 * 60 * 60 * 1000 // 1 hour
     });
 
@@ -375,9 +375,9 @@ const logout = async (req, res) => {
     }
 
     // Clear the access and refresh tokens and the shopifyCartToken
-    res.clearCookie('accessToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
-    res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
-    res.clearCookie('shopifyCartToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('accessToken', { httpOnly: true, secure: false, sameSite: 'Lax' });
+    res.clearCookie('refreshToken', { httpOnly: true, secure: false, sameSite: 'Lax' });
+    res.clearCookie('shopifyCartToken', { httpOnly: true, secure: false, sameSite: 'Lax' });
 
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {

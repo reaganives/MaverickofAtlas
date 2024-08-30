@@ -218,8 +218,8 @@ exports.addItemToCart = async (req, res) => {
       cartId = cartData.id;
       res.cookie('shopifyCartToken', cartId, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
+        secure: false,
+        sameSite: 'Lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
     }
@@ -475,19 +475,19 @@ exports.removeItemFromCart = async (req, res) => {
 //   }
 // };
 
-exports.processOrderWebhook = (req, res) => {
-  const { order } = req.body;
+// exports.processOrderWebhook = (req, res) => {
+//   const { order } = req.body;
   
-  // Process the order, e.g., store order data in your database
-  console.log('Order received:', order);
+//   // Process the order, e.g., store order data in your database
+//   console.log('Order received:', order);
 
-  // Clear the user's cart token or replace it with a new one
-  if (order.customer) {
-    // Clear cart token logic here
-  }
+//   // Clear the user's cart token or replace it with a new one
+//   if (order.customer) {
+//     // Clear cart token logic here
+//   }
 
-  res.status(200).send('Webhook received');
-};
+//   res.status(200).send('Webhook received');
+// };
 
 // Update Quantity of Item in Cart
 exports.updateItemQuantity = async (req, res) => {

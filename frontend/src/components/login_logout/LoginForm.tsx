@@ -22,7 +22,7 @@ const LoginForm = () => {
         setLoading(true); 
     
         try {
-            const response = await axios.post('/auth/login', { email, password });
+            const response = await axios.post('/auth/login', { email, password, withCredentials: true });
             console.log('Login successful:', response.data);
     
             // Redirect to the homepage or another protected route
