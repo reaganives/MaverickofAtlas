@@ -58,7 +58,7 @@ export default function LandingPageSlide() {
 
     return (
         <motion.div
-            className="w-full flex items-center justify-center"
+            className="m:w-full flex items-center justify-center"
             initial={{ x: '10vh', opacity: 0 }}  // Start off-screen at the bottom
             animate={{ x: 0, opacity: 1 }}  // Animate to its normal position
             transition={{ type: 'spring', stiffness: 70 }}  // Smooth spring effect with a delay
@@ -74,14 +74,13 @@ export default function LandingPageSlide() {
                             <img 
                                 src={img} 
                                 alt={`Slide ${index}`} 
-                                className="w-full object-cover object-center brightness-75" 
-                                style={{ height: '480px' }} 
+                                className="w-full object-cover lg:h-[480px] h-[270px] object-center brightness-75" 
                             />
                         </div>
                     ))}
                 </Slider>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-30">
-                    <div className="text-2xl sm:text-4xl md:text-5xl font-poiret font-bold tracking-wide p-1">
+                    <div className="text-xl sm:text-4xl md:text-5xl font-poiret font-bold tracking-wide p-1">
                         FOR THOSE WITH THE EYES TO SEE
                     </div>
                     <div className="text-md sm:text-base font-poiret mt-2 italic">

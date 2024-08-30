@@ -28,7 +28,7 @@ export default function ShippingBanner({ isNavbarHovered }) {
             transition={{ duration: 0.5 }}  // Smooth transition for both fade-in and fade-out
             className="transition-opacity duration-500"
         >
-            <p className="font-novo font-light tracking-wide text-ivyPurple text-xs transition-all duration-300">
+            <p className="font-novo font-light tracking-wide text-ivyPurple text-xs transition-all duration-300 text-center">
                 This is a demo site created by <span className='font-semibold italic'>Reagan Ives</span>. All products are for demonstration purposes only.
             </p>
         </motion.div>

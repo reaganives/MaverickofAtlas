@@ -66,7 +66,7 @@ export default function CollectionItemsGrid() {
 
   return (
     <motion.div
-      className="w-full flex flex-col justify-center mb-20"
+      className="w-full flex flex-col justify-center mb-20 px-4 lg:px-0"
       initial={{ x: -175, opacity: 0 }}  // Start off-screen at the left
       animate={{ x: 0, opacity: 1 }}  // Animate to its normal position
       transition={{ type: 'spring', stiffness: 70 }}  // Smooth spring effect

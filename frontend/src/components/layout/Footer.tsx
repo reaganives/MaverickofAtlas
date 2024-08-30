@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 export default function Footer() {
     return (
         <motion.footer
-            className="py-5 w-full flex px-12 pb-12 flex-col items-center justify-center bg-white text-black text-sm"
+            className="py-5 w-full flex px-4 pb-12 flex-col items-center justify-center bg-white text-black text-sm"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1 }}

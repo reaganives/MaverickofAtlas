@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Create an axios instance
 const instance = axios.create({
-  baseURL: 'http://localhost:4000/api',  // Replace with your backend URL
-  timeout: 1000,
+  baseURL: 'http://54.176.104.188:4000/api',  // Replace with your backend URL
+  timeout: 5000,  // Increased timeout for more flexibility
   headers: {
     'Content-Type': 'application/json',
   },
@@ -42,3 +42,4 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+

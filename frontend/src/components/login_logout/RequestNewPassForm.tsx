@@ -23,10 +23,10 @@ const RequestNewPassForm: React.FC = () => {
     return (
         <div className='w-full mb-40'>
         
-        <div className="flex gap-12 items-center gap-28 w-full border border-dotted border-ivyPurple py-4 px-32">
-        <h1 className="text-sm font-quicksand tracking-wider text-ivyPurple">Request Password Reset Link:</h1>
+        <div className="flex flex-col lg:flex-row items-center lg:gap-28 gap-8 w-full border border-dotted border-ivyPurple py-4 lg:px-32">
+        <h1 className="text-sm text-center font-quicksand tracking-wider text-ivyPurple">Request Password Reset Link:</h1>
         <div className="flex">
-            <form className="flex items-center gap-28" onSubmit={handleSubmit}>
+            <form className="flex items-center gap-12 lg:gap-28" onSubmit={handleSubmit}>
                 <label className="flex items-center gap-4 input input-bordered">
                 <svg
                         xmlns="http://www.w3.org/2000/svg"

@@ -21,8 +21,8 @@ const verifyUserOrGuestToken = (req, res, next) => {
     const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.cookie('guestToken', guestToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: false,
+      sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     req.guestToken = guestToken;
@@ -37,8 +37,8 @@ const verifyUserOrGuestToken = (req, res, next) => {
       const newGuestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
       res.cookie('guestToken', newGuestToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
+        secure: false,
+        sameSite: 'Lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       req.guestToken = newGuestToken;

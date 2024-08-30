@@ -13,7 +13,7 @@ connectDB();  // Ensure the database is connected before starting the server
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173',  // The frontend origin
+    origin: 'http://localhost:5173', // The frontend origin
     credentials: true,  // Allow credentials (cookies) to be sent
   }));
 

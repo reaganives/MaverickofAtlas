@@ -16,6 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@heroicons/react": "^1.0.6",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@shopify/buy-button-js": "^2.4.0",

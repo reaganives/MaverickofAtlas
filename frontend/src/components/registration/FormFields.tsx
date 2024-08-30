@@ -17,7 +17,7 @@ interface FormFieldsProps {
 
 const FormFields: React.FC<FormFieldsProps> = ({ name, setName, dob, setDob, email, setEmail, password, setPassword, verifyPassword, setVerifyPassword }) => {
   return (
-    <div className='flex justify-center py-4 px-12 gap-40'>
+    <div className='flex flex-col lg:flex-row justify-center py-4 px-12 lg:gap-40 gap-16'>
       {/* Personal Info */}
       <PersonalInfo
         name={name}

@@ -19,7 +19,7 @@ export default function LogoHome() {
 
     return (
         <motion.div
-            className="flex w-1/3 items-end justify-between gap-4"
+            className="flex w-1/3 items-end justify-center gap-4"
             initial={{ opacity: showAnimation ? 0 : 1, scale: 1 }}  // Start with reduced opacity and scale if animation is to be shown
             animate={{ opacity: 1, scale: 1 }}  // Animate to full opacity and normal scale
             transition={{ duration: 1.75, delay: showAnimation ? 1.75 : 0 }}  // 1.75 seconds duration, with a delay if showing animation

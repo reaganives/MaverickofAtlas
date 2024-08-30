@@ -54,7 +54,7 @@ const LoginForm = () => {
 
     return (
         <div className="">
-            <form onSubmit={handleSubmit} className="flex justify-center gap-24 border py-4 px-12 border-ivyPurple border-dotted w-full">
+            <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row justify-center gap-8 lg:gap-24 border py-4 px-12 border-ivyPurple border-dotted w-full">
                 <label className="input input-bordered flex items-center gap-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
