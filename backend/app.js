@@ -9,6 +9,14 @@ const cookieParser = require('cookie-parser');
 // Connect to MongoDB
 connectDB();  // Ensure the database is connected before starting the server
 
+app.get('/', (req, res) => {
+    res.send('API is running...');
+});
+
+app.get('/health', (req, res) => {
+  res.send('yes hello very health yes mmm');
+});
+
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
@@ -16,7 +24,6 @@ app.use(cors({
     origin: 'http://localhost:5173', // The frontend origin
     credentials: true,  // Allow credentials (cookies) to be sent
   }));
-
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
@@ -45,7 +52,6 @@ app.get('/api/me', verifyToken, getCurrentUser);  // Directly reference the cont
 
 // Start server after the DB connection
 const PORT = 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const HOST = '0.0.0.0'; // Listen on all available IPv4 interfaces
 
-
-
+app.listen(PORT, HOST, () => console.log(`Server running on http://${HOST}:${PORT}`));
