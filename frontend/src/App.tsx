@@ -14,7 +14,7 @@ import ProductPage from './components/product/ProductPage';
 import CollectionsPage from './components/categories/CollectionsPage';
 import RequestNewPassPage from './components/login_logout/RequestNewPassPage';
 import ResetPassPage from './components/login_logout/ResetPassPage';
-import ScrollToTop from './components/layout/ScrollToTop';
+import ScrollToTop from './components/layout/ScrollToTop'
 
 function App() {
   return (
