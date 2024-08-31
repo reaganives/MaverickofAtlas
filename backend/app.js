@@ -21,7 +21,7 @@ app.get('/health', (req, res) => {
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173', // The frontend origin
+    origin: 'http://moa.reaganives.io', // The frontend origin
     credentials: true,  // Allow credentials (cookies) to be sent
   }));
 
