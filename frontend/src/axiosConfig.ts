@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance
 const instance = axios.create({
-  baseURL: 'https://moa.reaganives.io/api',  // Replace with your backend URL
+  baseURL: 'https://api.moa.reaganives.io/api',  // Replace with your backend URL
   timeout: 5000,  // Increased timeout for more flexibility
   headers: {
     'Content-Type': 'application/json',
