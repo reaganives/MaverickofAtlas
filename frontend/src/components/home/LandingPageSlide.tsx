@@ -85,7 +85,7 @@ export default function LandingPageSlide() {
                     ))}
                 </Slider>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-30">
-                    <div className="text-xl sm:text-3xl md:text-5xl font-poiret font-bold tracking-wide p-1">
+                    <div className="text-xl text-3xl md:text-5xl font-poiret font-bold tracking-wide p-1">
                         FOR THOSE WITH THE EYES TO SEE
                     </div>
                     <div className="text-md sm:text-base font-poiret mt-2 italic">
