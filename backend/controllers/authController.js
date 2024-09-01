@@ -64,7 +64,7 @@ const login = async (req, res) => {
       }
 
       // Generate verification link
-      const verificationLink = `http://localhost:5173/verify-email/${verificationToken}`;
+      const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
 
       // Set up email parameters
       const params = {
@@ -191,7 +191,7 @@ const register = async (req, res) => {
         await newUser.save();
 
         // Generate verification link
-        const verificationLink = `http://localhost:5173/verify-email/${verificationToken}`;
+        const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
 
         // Set up email parameters
         const params = {
@@ -271,7 +271,7 @@ const sendPasswordReset = async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        const resetLink = `http://localhost:5173/reset-password/${token}`;
+        const resetLink = `https://moa.reaganives.io/reset-password/${token}`;
 
         const params = {
             Destination: { ToAddresses: [email] },
