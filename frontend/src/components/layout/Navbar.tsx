@@ -63,7 +63,7 @@ export default function Navbar() {
                         </>
                     ) : (
                         <>
-                            <li className="hover:text-ivyPurple/80 transition-all hover:-translate-y-p hover:shadow-xl shadow-white">
+                            <li className="hover:text-ivyPurple/80 transition-all hover:-translate-y-px hover:shadow-xl shadow-white">
                                 <a href="/register" className='bg-orange-200'>Register</a>
                             </li>
                             <div className="flex items-center">
@@ -79,9 +79,9 @@ export default function Navbar() {
                             className="group flex hover:text-ivyPurple/80 transition-all gap-2 cursor-pointer bg-red-100 hover:-translate-y-px"
                             onClick={handleRedirect}
                         >
-                            <span className="group-hover:text-ivyPurple/80 hover:-translate-y-px hover:shadow-xl shadow-white">Cart</span>
+                            <span className="group-hover:text-ivyPurple/80 group-hover:-translate-y-px hover:shadow-xl shadow-white">Cart</span>
                             <span
-                                className="group-hover:cursor-pointer group-hover:text-ivyPurple/50 group-hover:rotate-[-12deg] group-hover:scale-105 group-hover:-translate-y-px transition-all"
+                                className="group-hover:cursor-pointer group-hover:text-ivyPurple/50 group-hover:rotate-[-12deg] group-hover:scale-105 group-hover:-translate-y-px transition-all hover:shadow-xl shadow-white"
                             >
                                 <CheckroomIcon sx={{ fontSize: 15 }} />
                             </span>
