@@ -58,7 +58,32 @@ const login = async (req, res) => {
 
     if (!user.isVerified) {
       console.log('User not verified:', email);
-      // Handle verification logic here
+
+      // Generate a new verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      user.verificationToken = verificationToken;
+      await user.save();
+
+      // Generate verification link
+      const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
+
+      // Set up email parameters
+      const params = {
+        Destination: { ToAddresses: [email] },
+        Message: {
+          Body: {
+            Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
+          },
+          Subject: { Data: 'Verify Your Email' }
+        },
+        Source: process.env.EMAIL_SOURCE
+      };
+
+      // Send the email
+      await ses.sendEmail(params).promise();
+      console.log('Verification email sent to:', email);
+
+      return res.status(403).json({ error: 'Please verify your account to login. A verification email has been sent.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -109,7 +134,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
-
 
 // Register function
 const register = async (req, res) => {
