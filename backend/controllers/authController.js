@@ -102,22 +102,22 @@ const login = async (req, res) => {
     // Set access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
-    // Retrieve the user's existing Shopify cart token or create a new one
+    // Retrieve or create a unique Shopify cart token for the user
     let cartToken = user.shopifyCartToken;
 
     if (!cartToken) {
@@ -146,15 +146,18 @@ const login = async (req, res) => {
       cartToken = shopifyResponse.data.data.cartCreate.cart.id;
       user.shopifyCartToken = cartToken;
       await user.save();  // Save the cart token to the user record
+    } else {
+      // Optional: Consider refreshing the cart token for returning users
+      console.log(`User ${user.email} already has a Shopify cart token: ${cartToken}`);
     }
 
     // Set cart token cookie
     res.cookie('shopifyCartToken', cartToken, {
       httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     res.status(200).json({ message: 'Login successful', user });
@@ -163,6 +166,7 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
+
 
 // Register function
 const register = async (req, res) => {
