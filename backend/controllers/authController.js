@@ -206,10 +206,18 @@ const verifyEmail = async (req, res) => {
       await user.save();
 
       // Generate JWT for the user to automatically log them in
-      const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-      // Set the JWT in a cookie
-      res.cookie('accessToken', jwtToken, {
+      // Set the access token and refresh token in cookies
+      res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'None',
+          maxAge: 1 * 60 * 60 * 1000, // 1 hour
+      });
+
+      res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: 'None',
