@@ -192,37 +192,39 @@ const register = async (req, res) => {
 
 // Verify Email function
 const verifyEmail = async (req, res) => {
-    const { token } = req.params;
-    try {
-        const user = await User.findOne({ verificationToken: token });
+  const { token } = req.params;
+  try {
+      const user = await User.findOne({ verificationToken: token });
 
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid or expired verification token' });
-        }
+      if (!user) {
+          return res.status(400).json({ error: 'Invalid or expired verification token' });
+      }
 
-        // Mark user as verified
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        await user.save();
+      // Mark user as verified
+      user.isVerified = true;
+      user.verificationToken = undefined; // Remove the token after verification
+      await user.save();
 
-        // Generate JWT for the user to automatically log them in
-        const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      // Generate JWT for the user to automatically log them in
+      const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.cookie('accessToken', jwtToken, {
+      // Set the JWT in a cookie
+      res.cookie('accessToken', jwtToken, {
           httpOnly: true,
           secure: true,
           sameSite: 'None',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
+      });
 
-        res.status(200).json({
-            message: 'Email verified successfully!',
-            user: { _id: user._id },
-        });
-    } catch (error) {
-        console.error('Error verifying email:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+      // Return a success message and user ID
+      res.status(200).json({
+          message: 'Email verified successfully!',
+          user: { _id: user._id },
+      });
+  } catch (error) {
+      console.error('Error verifying email:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 // Configure AWS SDK for sending emails
