@@ -1,4 +1,5 @@
 const axios = require('axios');
+const User = require('../models/User');
 
 // Helper function to convert the variant ID to the global ID format
   const encodeVariantId = (variantId) => {
@@ -92,8 +93,9 @@ exports.addItemToCart = async (req, res) => {
     // Convert the variant ID to the global ID format
     const encodedVariantId = encodeVariantId(variantId);
 
-    // Use the cart token from cookies, if available
-    let cartId = req.cookies.shopifyCartToken;
+    // Check if user is logged in
+    const user = req.user ? await User.findById(req.user._id) : null;
+    let cartId = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
 
     let query;
     if (cartId) {
@@ -213,16 +215,21 @@ exports.addItemToCart = async (req, res) => {
       ? shopifyResponse.data.data.cartLinesAdd.cart
       : shopifyResponse.data.data.cartCreate.cart;
 
-    // If a new cart is created, store cart token in cookies
-    if (!cartId) {
-      cartId = cartData.id;
-      res.cookie('shopifyCartToken', cartId, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-      });
+    // Save cart token for logged-in users
+    if (user) {
+      user.shopifyCartToken = cartData.id;
+      await user.save();
+    } else {
+      // If a new cart is created, store cart token in cookies for guests
+      if (!cartId) {
+        res.cookie('shopifyCartToken', cartData.id, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'None',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+        });
+      }
     }
 
     // Send back cart data to the client
@@ -233,10 +240,13 @@ exports.addItemToCart = async (req, res) => {
   }
 };
 
-// Fetch Cart
+//fetch vart
 exports.fetchCart = async (req, res) => {
   try {
-    const cartToken = req.cookies.shopifyCartToken;
+    // Check if user is logged in and retrieve cartToken accordingly
+    const user = req.user ? await User.findById(req.user._id) : null;
+    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
+
     console.log("Cart Token:", cartToken);  // Log the cart token
 
     if (!cartToken) {
@@ -269,9 +279,9 @@ exports.fetchCart = async (req, res) => {
                           }
                         }
                       }
-                    }
-                    price {
-                      amount
+                      price {
+                        amount
+                      }
                     }
                   }
                 }
@@ -306,11 +316,19 @@ exports.fetchCart = async (req, res) => {
 };
 
 
+
 // Remove Item from Cart
 exports.removeItemFromCart = async (req, res) => {
   try {
     const { lineItemId } = req.body;
-    const cartToken = req.cookies.shopifyCartToken;
+
+    // Check if user is logged in and retrieve cartToken accordingly
+    const user = req.user ? await User.findById(req.user._id) : null;
+    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
+
+    if (!cartToken) {
+      return res.status(400).json({ message: 'No cart found.' });
+    }
 
     const mutation = `
       mutation {
@@ -368,6 +386,7 @@ exports.removeItemFromCart = async (req, res) => {
     res.status(500).json({ message: 'Failed to remove item from cart' });
   }
 };
+
 
 // Create Checkout Session
 // exports.createCheckoutSession = async (req, res) => {
@@ -494,7 +513,14 @@ exports.removeItemFromCart = async (req, res) => {
 exports.updateItemQuantity = async (req, res) => {
   try {
     const { lineItemId, quantity } = req.body;
-    const cartToken = req.cookies.shopifyCartToken;
+
+    // Check if user is logged in and retrieve cartToken accordingly
+    const user = req.user ? await User.findById(req.user._id) : null;
+    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
+
+    if (!cartToken) {
+      return res.status(400).json({ message: 'No cart found.' });
+    }
 
     const mutation = `
       mutation {
@@ -555,6 +581,7 @@ exports.updateItemQuantity = async (req, res) => {
     res.status(500).json({ message: 'Failed to update item quantity' });
   }
 };
+
 
 // Fetch all products within a specific collection
 exports.getProductsByCollection = async (req, res) => {

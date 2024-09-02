@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
 const verifyUserOrGuestToken = (req, res, next) => {
-  let token = req.cookies.accessToken || req.cookies.guestToken;
+  const accessToken = req.cookies.accessToken;
+  const guestToken = req.cookies.guestToken;
 
-  // If user token exists, try to verify it
-  if (req.cookies.accessToken) {
+  if (accessToken) {
     try {
-      const decoded = jwt.verify(req.cookies.accessToken, process.env.JWT_SECRET);
+      const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
       req.user = decoded;  // Attach decoded user token to req
       return next();  // Proceed as an authenticated user
     } catch (err) {
@@ -16,22 +16,11 @@ const verifyUserOrGuestToken = (req, res, next) => {
     }
   }
 
-  // Handle guest token (create a new one if it doesn't exist or is invalid)
-  if (!req.cookies.guestToken) {
-    const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.cookie('guestToken', guestToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-    });
-    req.guestToken = guestToken;
-    console.log('New guest token generated.');
-  } else {
+  // Handle guest token
+  if (guestToken) {
     try {
-      jwt.verify(req.cookies.guestToken, process.env.JWT_SECRET);  // Verify the guest token
-      req.guestToken = req.cookies.guestToken;
+      jwt.verify(guestToken, process.env.JWT_SECRET);  // Verify the guest token
+      req.guestToken = guestToken;
       console.log('Valid guest token.');
     } catch (err) {
       console.error('Invalid guest token:', err.message);
@@ -46,9 +35,22 @@ const verifyUserOrGuestToken = (req, res, next) => {
       req.guestToken = newGuestToken;
       console.log('New guest token generated due to invalid existing one.');
     }
+  } else {
+    // Create a new guest token if one does not exist
+    const newGuestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.cookie('guestToken', newGuestToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+    });
+    req.guestToken = newGuestToken;
+    console.log('New guest token generated.');
   }
 
   next();  // Proceed to the next middleware or route handler
 };
 
 module.exports = verifyUserOrGuestToken;
+
