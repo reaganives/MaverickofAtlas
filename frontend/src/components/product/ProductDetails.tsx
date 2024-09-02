@@ -91,18 +91,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       {/* Star Rating */}
       <div className="flex justify-start items-center">
         <div className="text-lg flex cursor-pointer">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(5)].map((_, i) => (
             <svg
-              key={i}
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3 w-3"
-              fill="black"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 .587l3.668 7.571 8.332 1.209-6.042 5.885 1.427 8.311-7.385-3.882-7.385 3.882 1.427-8.311-6.042-5.885 8.332-1.209z" />
-            </svg>
-          ))}
-          <svg
+            key={i}
             xmlns="http://www.w3.org/2000/svg"
             className="h-3 w-3"
             fill="black"
@@ -110,9 +101,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           >
             <path d="M12 2.024l2.516 5.18 5.718.83-4.134 4.04.975 5.685-5.075-2.662-5.075 2.662.975-5.685-4.134-4.04 5.718-.83 2.516-5.18m0-2.024l-3.668 7.571-8.332 1.209 6.042 5.885-1.427 8.311 7.385-3.882 7.385 3.882-1.427-8.311 6.042-5.885-8.332-1.209-3.668-7.571z" />
           </svg>
+          ))}
         </div>
         <p className="ml-2 text-xs text-ivyPurple cursor-pointer hover:underline py-1 pr-1 rounded bg-white">
-          (230 reviews)
+          (0 reviews)
         </p>
       </div>
 
