@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../axiosConfig';
-import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 
@@ -51,32 +50,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     if (!selectedVariant || quantity <= 0) return;  // Ensure a variant is selected and quantity is valid
-
+  
     setAdding(true);
-
+  
     try {
       const response = await axios.post('/shopify/cart/add', {
         variantId: selectedVariant.id,
-        quantity: quantity, // Quantity should be passed here
+        quantity: quantity,
       });
-
+  
       if (response.status === 200) {
-        const cartToken = response.data.cart_token;
-        Cookies.set('shopifyCartToken', cartToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'None',
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-         });
         navigate('/cart');
+      } else {
+        console.error('Failed to add item to cart');
       }
     } catch (err) {
       console.error('Error adding item to cart:', err);
+      // Handle error, maybe show a notification to the user
     } finally {
       setAdding(false);
     }
   };
+  
 
   // Fetch the price from the selected variant, or fall back to the first variant's price
   const productPrice = selectedVariant?.price || product.variants[0]?.price || 'N/A';
