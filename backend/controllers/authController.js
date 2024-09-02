@@ -91,7 +91,16 @@ const login = async (req, res) => {
 
     console.log('Access and refresh tokens set for user:', email);
 
-    // No cart token logic here
+    // Check if the user has a shopifyCartToken and store it in cookies if it exists
+    if (user.shopifyCartToken) {
+      res.cookie('shopifyCartToken', user.shopifyCartToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      console.log('Shopify cart token set in cookie for user:', email);
+    }
 
     res.status(200).json({ message: 'Login successful', user });
     console.log('Login successful for user:', email);
@@ -100,6 +109,7 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
+
 
 // Register function
 const register = async (req, res) => {
