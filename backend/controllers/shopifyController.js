@@ -1,5 +1,5 @@
 const axios = require('axios');
-const User = require('../models/userModel');
+const User = require('../models/User');
 
 // Helper function to convert the variant ID to the global ID format
   const encodeVariantId = (variantId) => {
