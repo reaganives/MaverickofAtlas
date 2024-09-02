@@ -65,7 +65,7 @@ const login = async (req, res) => {
       await user.save();
 
       // Generate verification link
-      const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
+      const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
 
       // Set up email parameters
       const params = {
@@ -165,7 +165,7 @@ const register = async (req, res) => {
         await newUser.save();
 
         // Generate verification link
-        const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
+        const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
 
         // Set up email parameters
         const params = {
