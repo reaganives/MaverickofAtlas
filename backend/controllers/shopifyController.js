@@ -221,7 +221,6 @@ exports.addItemToCart = async (req, res) => {
         secure: true,
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
       });
     }
 

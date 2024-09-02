@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const axios = require('axios');
 
+
 // Define Joi schemas
 const registrationSchema = Joi.object({
     name: Joi.string().min(3).max(30).required().messages({
@@ -74,7 +75,6 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: '.reaganives.io',
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -82,7 +82,6 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: '.reaganives.io',
     });
 
     // Use or create a shopifyCartToken
@@ -100,7 +99,6 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: '.reaganives.io',
     });
 
     res.status(200).json({ message: 'Login successful', user });
@@ -188,7 +186,6 @@ const verifyEmail = async (req, res) => {
           secure: true,
           sameSite: 'None',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
         });
 
         res.status(200).json({
@@ -304,7 +301,6 @@ const refreshToken = (req, res) => {
         secure: true,
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     return res.json({ accessToken: newAccessToken });
@@ -330,19 +326,16 @@ const logout = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
      });
     res.clearCookie('refreshToken', { httpOnly: true,
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
      });
     res.clearCookie('shopifyCartToken', { httpOnly: true,
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
      });
 
     res.status(200).json({ message: 'Logged out successfully' });
