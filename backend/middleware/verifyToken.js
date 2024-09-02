@@ -20,7 +20,7 @@ const verifyUserOrGuestToken = (req, res, next) => {
   if (!req.cookies.guestToken) {
     const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.cookie('guestToken', guestToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -36,7 +36,7 @@ const verifyUserOrGuestToken = (req, res, next) => {
       console.error('Invalid guest token:', err.message);
       const newGuestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
       res.cookie('guestToken', newGuestToken, {
-        httpOnly: true,
+        httpOnly: false,
         secure: false,
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
