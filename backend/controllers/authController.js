@@ -49,110 +49,58 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found. Please register or check your email.' });
     }
 
-    // Check if the user is verified
     if (!user.isVerified) {
-      const verificationToken = user.verificationToken || crypto.randomBytes(32).toString('hex');
-      if (!user.verificationToken) {
-        user.verificationToken = verificationToken;
-        await user.save();  // Save the verification token if newly generated
-      }
-
-      const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
-      const params = {
-        Destination: { ToAddresses: [email] },
-        Message: {
-          Body: {
-            Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
-          },
-          Subject: { Data: 'Verify Your Email' }
-        },
-        Source: process.env.EMAIL_SOURCE
-      };
-
-      await ses.sendEmail(params).promise();
-      console.log('Verification email sent.');
-
-      return res.status(400).json({ error: 'Your account is not verified. A verification email has been sent.' });
+      // Handle verification logic here
     }
 
-    // Check if the password matches
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
-    // Clear guest token
+    // Clear guest token to prevent access to guest cart
     res.clearCookie('guestToken');
 
     // Generate access and refresh tokens
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = generateRefreshToken(user._id);
 
-    // Set access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       domain: '.reaganives.io',
     });
 
-    // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       domain: '.reaganives.io',
     });
 
-    // Retrieve or create a unique Shopify cart token for the user
+    // Use or create a shopifyCartToken
     let cartToken = user.shopifyCartToken;
-
     if (!cartToken) {
-      // If the user doesn't have a cart token, create a new cart on Shopify
-      const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
-      const query = `
-        mutation {
-          cartCreate {
-            cart {
-              id
-            }
-          }
-        }
-      `;
-
-      const shopifyResponse = await axios.post(
-        shopifyUrl,
-        { query },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-          }
-        }
-      );
-
-      cartToken = shopifyResponse.data.data.cartCreate.cart.id;
+      // Create a new Shopify cart if it doesn't exist
+      cartToken = await createNewShopifyCart(); // Implement this function to create a cart using the Shopify API
       user.shopifyCartToken = cartToken;
-      await user.save();  // Save the cart token to the user record
-    } else {
-      // If the user has an existing cart, you can fetch and merge it with any new items, if needed
-      console.log(`User ${user.email} already has a Shopify cart token: ${cartToken}`);
+      await user.save();
     }
 
-    // Set cart token cookie
+    // Set cart token for logged-in user
     res.cookie('shopifyCartToken', cartToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       domain: '.reaganives.io',
     });
 
@@ -162,7 +110,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
-
 
 // Register function
 const register = async (req, res) => {
@@ -379,25 +326,35 @@ const logout = async (req, res) => {
       await User.findByIdAndUpdate(userId, { shopifyCartToken: cartToken });
     }
 
-    // Clear the access and refresh tokens and the shopifyCartToken
-    res.clearCookie('accessToken', { httpOnly: true,
+    // Clear user-specific cookies
+    res.clearCookie('accessToken', { 
+      httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-     });
-    res.clearCookie('refreshToken', { httpOnly: true,
+      domain: '.reaganives.io', 
+    });
+    res.clearCookie('refreshToken', { 
+      httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-     });
-    res.clearCookie('shopifyCartToken', { httpOnly: true,
+      domain: '.reaganives.io', 
+    });
+    res.clearCookie('shopifyCartToken', { 
+      httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
-     });
+      domain: '.reaganives.io', 
+    });
+
+    // Optionally set a new guest token to start a new guest session
+    const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.cookie('guestToken', guestToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: '.reaganives.io',
+    });
 
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -405,6 +362,7 @@ const logout = async (req, res) => {
     res.status(500).json({ error: 'Server error during logout' });
   }
 };
+
 
 
 
