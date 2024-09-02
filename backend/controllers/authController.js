@@ -340,6 +340,11 @@ const logout = async (req, res) => {
       domain: '.reaganives.io', 
     });
 
+    // Explicitly clear the cart on Shopify's side if possible
+    if (cartToken) {
+      await clearShopifyCart(cartToken);
+    }
+
     // Clear the shopifyCartToken cookie
     res.clearCookie('shopifyCartToken', {
       httpOnly: true,
@@ -362,6 +367,35 @@ const logout = async (req, res) => {
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ error: 'Server error during logout' });
+  }
+};
+
+// Helper function to clear a Shopify cart (if necessary)
+const clearShopifyCart = async (cartToken) => {
+  const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
+  const mutation = `
+    mutation {
+      cartLinesRemove(cartId: "${cartToken}", lineIds: []) {
+        cart {
+          id
+        }
+      }
+    }
+  `;
+
+  try {
+    await axios.post(
+      shopifyUrl,
+      { query: mutation },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error clearing Shopify cart:', error);
   }
 };
 
@@ -396,7 +430,6 @@ const createGuestCart = async () => {
 
   return shopifyResponse.data.data.cartCreate.cart.id;
 };
-
 
 
 // Get the current authenticated user and their order history
