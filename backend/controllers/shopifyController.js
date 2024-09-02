@@ -1,5 +1,4 @@
 const axios = require('axios');
-const User = require('../models/User');
 
 // Helper function to convert the variant ID to the global ID format
   const encodeVariantId = (variantId) => {
@@ -86,101 +85,52 @@ exports.addItemToCart = async (req, res) => {
   try {
     const { variantId, quantity } = req.body;
 
+    // Storefront API access token
     const accessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
     const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
 
+    // Convert the variant ID to the global ID format
     const encodedVariantId = encodeVariantId(variantId);
 
-    // Determine if the user is logged in or not
-    const user = req.user ? await User.findById(req.user._id) : null;
-    let cartId = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
+    // Use the cart token from cookies, if available
+    let cartId = req.cookies.shopifyCartToken;
 
-    // If no cart exists, create a new cart
-    if (!cartId) {
-      const createCartQuery = `
+    let query;
+    if (cartId) {
+      // If cart exists, use `cartLinesAdd` mutation to add items
+      query = `
         mutation {
-          cartCreate(input: {
+          cartLinesAdd(
+            cartId: "${cartId}",
             lines: [
               {
                 quantity: ${quantity},
                 merchandiseId: "${encodedVariantId}"
               }
             ]
-          }) {
+          ) {
             cart {
               id
-            }
-          }
-        }
-      `;
-      
-      const createCartResponse = await axios.post(
-        shopifyUrl,
-        { query: createCartQuery },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': accessToken,
-          },
-        }
-      );
-
-      if (createCartResponse.data.errors) {
-        console.error('GraphQL errors:', createCartResponse.data.errors);
-        return res.status(500).json({ message: 'Failed to create cart', errors: createCartResponse.data.errors });
-      }
-
-      cartId = createCartResponse.data.data.cartCreate.cart.id;
-
-      // Save the cart token for logged-in users
-      if (user) {
-        user.shopifyCartToken = cartId;
-        await user.save();
-      } else {
-        // Or save it in cookies for guests
-        res.cookie('shopifyCartToken', cartId, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'None',
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          domain: '.reaganives.io', 
-        });
-      }
-    }
-
-    // Add item to the cart
-    const addItemQuery = `
-      mutation {
-        cartLinesAdd(
-          cartId: "${cartId}",
-          lines: [
-            {
-              quantity: ${quantity},
-              merchandiseId: "${encodedVariantId}"
-            }
-          ]
-        ) {
-          cart {
-            id
-            lines(first: 5) {
-              edges {
-                node {
-                  id
-                  quantity
-                  merchandise {
-                    ... on ProductVariant {
-                      id
-                      title
-                      selectedOptions {
-                        name
-                        value
-                      }
-                      product {
+              lines(first: 5) {
+                edges {
+                  node {
+                    id
+                    quantity
+                    merchandise {
+                      ... on ProductVariant {
+                        id
                         title
-                        images(first: 1) {
-                          edges {
-                            node {
-                              src
+                        selectedOptions {
+                          name
+                          value
+                        }
+                        product {
+                          title
+                          images(first: 1) {
+                            edges {
+                              node {
+                                src
+                              }
                             }
                           }
                         }
@@ -192,12 +142,59 @@ exports.addItemToCart = async (req, res) => {
             }
           }
         }
-      }
-    `;
+      `;
+    } else {
+      // If no cart exists, use `cartCreate` mutation to create a new cart
+      query = `
+        mutation {
+          cartCreate(input: {
+            lines: [
+              {
+                quantity: ${quantity},
+                merchandiseId: "${encodedVariantId}"
+              }
+            ]
+          }) {
+            cart {
+              id
+              lines(first: 5) {
+                edges {
+                  node {
+                    id
+                    quantity
+                    merchandise {
+                      ... on ProductVariant {
+                        id
+                        title
+                        selectedOptions {
+                          name
+                          value
+                        }
+                        product {
+                          title
+                          images(first: 1) {
+                            edges {
+                              node {
+                                src
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+    }
 
+    // Make the request to Shopify Storefront API
     const shopifyResponse = await axios.post(
       shopifyUrl,
-      { query: addItemQuery },
+      { query },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -206,12 +203,29 @@ exports.addItemToCart = async (req, res) => {
       }
     );
 
+    // Handle errors from Shopify
     if (shopifyResponse.data.errors) {
       console.error('GraphQL errors:', shopifyResponse.data.errors);
       return res.status(500).json({ message: 'Failed to add item to cart', errors: shopifyResponse.data.errors });
     }
 
-    const cartData = shopifyResponse.data.data.cartLinesAdd.cart;
+    const cartData = cartId
+      ? shopifyResponse.data.data.cartLinesAdd.cart
+      : shopifyResponse.data.data.cartCreate.cart;
+
+    // If a new cart is created, store cart token in cookies
+    if (!cartId) {
+      cartId = cartData.id;
+      res.cookie('shopifyCartToken', cartId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      });
+    }
+
+    // Send back cart data to the client
     res.status(200).json({ message: 'Item added to cart successfully', cart: cartData });
   } catch (error) {
     console.error('Error adding item to cart:', error);
@@ -222,8 +236,8 @@ exports.addItemToCart = async (req, res) => {
 // Fetch Cart
 exports.fetchCart = async (req, res) => {
   try {
-    const user = req.user ? await User.findById(req.user._id) : null;
-    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
+    const cartToken = req.cookies.shopifyCartToken;
+    console.log("Cart Token:", cartToken);  // Log the cart token
 
     if (!cartToken) {
       return res.status(400).json({ message: 'No cart found.' });
@@ -256,6 +270,9 @@ exports.fetchCart = async (req, res) => {
                         }
                       }
                     }
+                    price {
+                      amount
+                    }
                   }
                 }
               }
@@ -264,6 +281,8 @@ exports.fetchCart = async (req, res) => {
         }
       }
     `;
+
+    console.log("Fetching cart with query:", query);  // Log the query being sent
 
     const shopifyResponse = await axios.post(
       `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`,
@@ -276,16 +295,8 @@ exports.fetchCart = async (req, res) => {
       }
     );
 
-    if (shopifyResponse.data.errors) {
-      console.error('GraphQL errors:', shopifyResponse.data.errors);
-      return res.status(500).json({ message: 'Failed to fetch cart', errors: shopifyResponse.data.errors });
-    }
-
-    const cartData = shopifyResponse.data.data?.cart; // Optional chaining to prevent errors
-
-    if (!cartData) {
-      return res.status(500).json({ message: 'No cart data found in response' });
-    }
+    const cartData = shopifyResponse.data.data.cart;
+    console.log("Cart Data from Shopify:", cartData);  // Log the cart data received
 
     res.status(200).json(cartData);
   } catch (error) {
@@ -299,14 +310,7 @@ exports.fetchCart = async (req, res) => {
 exports.removeItemFromCart = async (req, res) => {
   try {
     const { lineItemId } = req.body;
-
-    // Check if user is logged in and retrieve cartToken accordingly
-    const user = req.user ? await User.findById(req.user._id) : null;
-    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
-
-    if (!cartToken) {
-      return res.status(400).json({ message: 'No cart found.' });
-    }
+    const cartToken = req.cookies.shopifyCartToken;
 
     const mutation = `
       mutation {
@@ -364,7 +368,6 @@ exports.removeItemFromCart = async (req, res) => {
     res.status(500).json({ message: 'Failed to remove item from cart' });
   }
 };
-
 
 // Create Checkout Session
 // exports.createCheckoutSession = async (req, res) => {
@@ -491,14 +494,7 @@ exports.removeItemFromCart = async (req, res) => {
 exports.updateItemQuantity = async (req, res) => {
   try {
     const { lineItemId, quantity } = req.body;
-
-    // Check if user is logged in and retrieve cartToken accordingly
-    const user = req.user ? await User.findById(req.user._id) : null;
-    const cartToken = user ? user.shopifyCartToken : req.cookies.shopifyCartToken;
-
-    if (!cartToken) {
-      return res.status(400).json({ message: 'No cart found.' });
-    }
+    const cartToken = req.cookies.shopifyCartToken;
 
     const mutation = `
       mutation {
@@ -559,7 +555,6 @@ exports.updateItemQuantity = async (req, res) => {
     res.status(500).json({ message: 'Failed to update item quantity' });
   }
 };
-
 
 // Fetch all products within a specific collection
 exports.getProductsByCollection = async (req, res) => {
