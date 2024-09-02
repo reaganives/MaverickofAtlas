@@ -322,38 +322,40 @@ const logout = async (req, res) => {
     const cartToken = req.cookies.shopifyCartToken;
 
     if (userId && cartToken) {
-      // Save the cart token to the user's account
+      // Save the cart token to the user's account before logging out
       await User.findByIdAndUpdate(userId, { shopifyCartToken: cartToken });
     }
 
-    // Clear user-specific cookies
-    res.clearCookie('accessToken', { 
+    // Clear the access and refresh tokens
+    res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       domain: '.reaganives.io', 
     });
-    res.clearCookie('refreshToken', { 
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      domain: '.reaganives.io', 
-    });
-    res.clearCookie('shopifyCartToken', { 
+    res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       domain: '.reaganives.io', 
     });
 
-    // Optionally set a new guest token to start a new guest session
-    const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.cookie('guestToken', guestToken, {
+    // Clear the shopifyCartToken cookie
+    res.clearCookie('shopifyCartToken', {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: '.reaganives.io',
+      domain: '.reaganives.io', 
+    });
+
+    // Generate a new guest cart token for the guest session
+    const guestCartToken = await createGuestCart();
+    res.cookie('shopifyCartToken', guestCartToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', 
     });
 
     res.status(200).json({ message: 'Logged out successfully' });
@@ -363,6 +365,37 @@ const logout = async (req, res) => {
   }
 };
 
+// Helper function to create a new guest cart
+const createGuestCart = async () => {
+  const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
+  const query = `
+    mutation {
+      cartCreate {
+        cart {
+          id
+        }
+      }
+    }
+  `;
+
+  const shopifyResponse = await axios.post(
+    shopifyUrl,
+    { query },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+      },
+    }
+  );
+
+  if (shopifyResponse.data.errors) {
+    console.error('GraphQL errors:', shopifyResponse.data.errors);
+    throw new Error('Failed to create guest cart');
+  }
+
+  return shopifyResponse.data.data.cartCreate.cart.id;
+};
 
 
 
