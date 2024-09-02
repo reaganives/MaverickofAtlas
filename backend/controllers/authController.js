@@ -43,7 +43,8 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
-//Log in function
+
+// Login function
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -56,17 +57,13 @@ const login = async (req, res) => {
 
     // Check if the user is verified
     if (!user.isVerified) {
-      // Generate a new verification token (or reuse the existing one)
       const verificationToken = user.verificationToken || crypto.randomBytes(32).toString('hex');
       if (!user.verificationToken) {
         user.verificationToken = verificationToken;
         await user.save();  // Save the verification token if newly generated
       }
 
-      // Generate verification link
       const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
-
-      // Set up email parameters
       const params = {
         Destination: { ToAddresses: [email] },
         Message: {
@@ -78,11 +75,9 @@ const login = async (req, res) => {
         Source: process.env.EMAIL_SOURCE
       };
 
-      // Send the email
       await ses.sendEmail(params).promise();
       console.log('Verification email sent.');
 
-      // Return the proper message and stop further processing
       return res.status(400).json({ error: 'Your account is not verified. A verification email has been sent.' });
     }
 
@@ -105,7 +100,7 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      domain: '.reaganives.io',
     });
 
     // Set refresh token cookie
@@ -114,13 +109,14 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      domain: '.reaganives.io',
     });
 
     // Retrieve or create a unique Shopify cart token for the user
     let cartToken = user.shopifyCartToken;
 
     if (!cartToken) {
+      // If the user doesn't have a cart token, create a new cart on Shopify
       const shopifyUrl = `https://maverick-of-atlas.myshopify.com/api/2023-07/graphql.json`;
       const query = `
         mutation {
@@ -147,7 +143,7 @@ const login = async (req, res) => {
       user.shopifyCartToken = cartToken;
       await user.save();  // Save the cart token to the user record
     } else {
-      // Optional: Consider refreshing the cart token for returning users
+      // If the user has an existing cart, you can fetch and merge it with any new items, if needed
       console.log(`User ${user.email} already has a Shopify cart token: ${cartToken}`);
     }
 
@@ -157,7 +153,7 @@ const login = async (req, res) => {
       secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+      domain: '.reaganives.io',
     });
 
     res.status(200).json({ message: 'Login successful', user });
