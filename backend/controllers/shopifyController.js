@@ -1,4 +1,5 @@
 const axios = require('axios');
+const User = require('../models/userModel');
 
 // Helper function to convert the variant ID to the global ID format
   const encodeVariantId = (variantId) => {
@@ -213,7 +214,7 @@ exports.addItemToCart = async (req, res) => {
       ? shopifyResponse.data.data.cartLinesAdd.cart
       : shopifyResponse.data.data.cartCreate.cart;
 
-    // If a new cart is created, store cart token in cookies
+    // If a new cart is created, store cart token in cookies and update user model if logged in
     if (!cartId) {
       cartId = cartData.id;
       res.cookie('shopifyCartToken', cartId, {
@@ -222,6 +223,14 @@ exports.addItemToCart = async (req, res) => {
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
+
+      // If the user is logged in, save the cart token to the user model
+      if (req.user) {
+        const user = await User.findById(req.user.id);
+        user.shopifyCartToken = cartId;
+        await user.save();
+        console.log('Shopify cart token saved to user model for user:', user.email);
+      }
     }
 
     // Send back cart data to the client
@@ -231,6 +240,7 @@ exports.addItemToCart = async (req, res) => {
     res.status(500).json({ message: 'Failed to add item to cart' });
   }
 };
+
 
 // Fetch Cart
 exports.fetchCart = async (req, res) => {
