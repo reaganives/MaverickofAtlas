@@ -43,28 +43,33 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
-
-// Login function
+// Login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    console.log('Starting login process for user:', email);
+
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found:', email);
       return res.status(404).json({ error: 'User not found. Please register or check your email.' });
     }
 
     if (!user.isVerified) {
+      console.log('User not verified:', email);
       // Handle verification logic here
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Invalid password attempt for user:', email);
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
     // Clear guest token to prevent access to guest cart
     res.clearCookie('guestToken');
+    console.log('Guest token cleared for user:', email);
 
     // Generate access and refresh tokens
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -84,13 +89,24 @@ const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    console.log('Access and refresh tokens set for user:', email);
+
     // Use or create a shopifyCartToken
     let cartToken = user.shopifyCartToken;
     if (!cartToken) {
-      // Create a new Shopify cart if it doesn't exist
-      cartToken = await createNewShopifyCart(); // Implement this function to create a cart using the Shopify API
-      user.shopifyCartToken = cartToken;
-      await user.save();
+      console.log('No Shopify cart token found for user:', email);
+      try {
+        // Create a new Shopify cart if it doesn't exist
+        cartToken = await createNewShopifyCart(); // Implement this function to create a cart using the Shopify API
+        user.shopifyCartToken = cartToken;
+        await user.save();
+        console.log('New Shopify cart token created and saved for user:', email);
+      } catch (error) {
+        console.error('Error creating or saving Shopify cart token for user:', email, 'Error:', error.message);
+        return res.status(500).json({ error: 'Failed to create or save Shopify cart token. Please try again later.' });
+      }
+    } else {
+      console.log('Existing Shopify cart token found for user:', email);
     }
 
     // Set cart token for logged-in user
@@ -101,12 +117,16 @@ const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    console.log('Shopify cart token set in cookie for user:', email);
+
     res.status(200).json({ message: 'Login successful', user });
+    console.log('Login successful for user:', email);
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error for user:', email, 'Error:', error.message);
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
+
 
 // Register function
 const register = async (req, res) => {
