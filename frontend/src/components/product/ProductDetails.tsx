@@ -119,7 +119,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             <FontAwesomeIcon icon={faInstagram} size="lg" />
           </a>
           <a
-            href="https://twitter.com/maverickofatlas"
+            href="https://twitter.com/"
             target="_blank"
             rel="noopener noreferrer"
           >
