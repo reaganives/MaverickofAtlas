@@ -217,10 +217,11 @@ exports.addItemToCart = async (req, res) => {
     if (!cartId) {
       cartId = cartData.id;
       res.cookie('shopifyCartToken', cartId, {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
       });
     }
 

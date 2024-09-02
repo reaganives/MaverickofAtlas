@@ -20,10 +20,11 @@ const verifyUserOrGuestToken = (req, res, next) => {
   if (!req.cookies.guestToken) {
     const guestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.cookie('guestToken', guestToken, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
     req.guestToken = guestToken;
     console.log('New guest token generated.');
@@ -36,10 +37,11 @@ const verifyUserOrGuestToken = (req, res, next) => {
       console.error('Invalid guest token:', err.message);
       const newGuestToken = jwt.sign({}, process.env.JWT_SECRET, { expiresIn: '7d' });
       res.cookie('guestToken', newGuestToken, {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: true,
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
       });
       req.guestToken = newGuestToken;
       console.log('New guest token generated due to invalid existing one.');

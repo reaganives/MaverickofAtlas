@@ -101,18 +101,20 @@ const login = async (req, res) => {
 
     // Set access token cookie
     res.cookie('accessToken', accessToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
+      httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     // Retrieve the user's existing Shopify cart token or create a new one
@@ -148,10 +150,11 @@ const login = async (req, res) => {
 
     // Set cart token cookie
     res.cookie('shopifyCartToken', cartToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     res.status(200).json({ message: 'Login successful', user });
@@ -235,10 +238,11 @@ const verifyEmail = async (req, res) => {
         const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.cookie('accessToken', jwtToken, {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Strict',
-          maxAge: 1 * 60 * 60 * 1000 // 1 hour
+          httpOnly: true,
+          secure: true,
+          sameSite: 'None',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
         });
 
         res.status(200).json({
@@ -350,10 +354,11 @@ const refreshToken = (req, res) => {
     
     // Send new access token back in a cookie
     res.cookie('accessToken', newAccessToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 1 * 60 * 60 * 1000 // 1 hour
+      httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
     });
 
     return res.json({ accessToken: newAccessToken });
@@ -375,9 +380,24 @@ const logout = async (req, res) => {
     }
 
     // Clear the access and refresh tokens and the shopifyCartToken
-    res.clearCookie('accessToken', { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
-    res.clearCookie('refreshToken', { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
-    res.clearCookie('shopifyCartToken', { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+    res.clearCookie('accessToken', { httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+     });
+    res.clearCookie('refreshToken', { httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+     });
+    res.clearCookie('shopifyCartToken', { httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+     });
 
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
