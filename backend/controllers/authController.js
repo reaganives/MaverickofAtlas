@@ -67,22 +67,16 @@ const login = async (req, res) => {
       // Generate verification link
       const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
 
-      // Set up email parameters with proper encoding
+      // Set up email parameters
       const params = {
         Destination: { ToAddresses: [email] },
         Message: {
           Body: {
-            Html: {
-              Charset: 'UTF-8',
-              Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">${verificationLink}</a>`
-            }
+            Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
           },
-          Subject: {
-            Charset: 'UTF-8',
-            Data: 'Verify Your Email'
-          }
+          Subject: { Data: 'Verify Your Email' }
         },
-        Source: process.env.EMAIL_SOURCE,
+        Source: process.env.EMAIL_SOURCE
       };
 
       // Send the email
@@ -173,22 +167,16 @@ const register = async (req, res) => {
         // Generate verification link
         const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
 
-        // Set up email parameters with proper encoding
+        // Set up email parameters
         const params = {
-          Destination: { ToAddresses: [email] },
-          Message: {
-            Body: {
-              Html: {
-                Charset: 'UTF-8',
-                Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">${verificationLink}</a>`
-              }
+            Destination: { ToAddresses: [email] },
+            Message: {
+                Body: {
+                    Html: { Data: `<p>Please click the link below to verify your account:</p><a href="${verificationLink}">Verify Account</a>` }
+                },
+                Subject: { Data: 'Verify Your Email' }
             },
-            Subject: {
-              Charset: 'UTF-8',
-              Data: 'Verify Your Email'
-            }
-          },
-          Source: process.env.EMAIL_SOURCE,
+            Source: process.env.EMAIL_SOURCE
         };
 
         // Send the email
