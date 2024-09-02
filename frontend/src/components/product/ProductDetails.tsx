@@ -62,7 +62,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
       if (response.status === 200) {
         const cartToken = response.data.cart_token;
-        Cookies.set('shopifyCartToken', cartToken, { expires: 7, secure: true, sameSite: 'Strict' });
+        Cookies.set('shopifyCartToken', cartToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'None',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          domain: '.reaganives.io', // Set to your domain to share cookies across subdomains
+         });
         navigate('/cart');
       }
     } catch (err) {
