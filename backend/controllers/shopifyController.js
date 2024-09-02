@@ -279,9 +279,9 @@ exports.fetchCart = async (req, res) => {
                           }
                         }
                       }
-                      price {
-                        amount
-                      }
+                    }
+                    price {
+                      amount
                     }
                   }
                 }
@@ -327,9 +327,6 @@ exports.fetchCart = async (req, res) => {
     res.status(500).json({ message: 'Failed to load cart' });
   }
 };
-
-
-
 
 // Remove Item from Cart
 exports.removeItemFromCart = async (req, res) => {
