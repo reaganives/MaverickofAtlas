@@ -240,7 +240,7 @@ exports.addItemToCart = async (req, res) => {
   }
 };
 
-//fetch vart
+// Fetch Cart
 exports.fetchCart = async (req, res) => {
   try {
     // Check if user is logged in and retrieve cartToken accordingly
@@ -305,7 +305,20 @@ exports.fetchCart = async (req, res) => {
       }
     );
 
-    const cartData = shopifyResponse.data.data.cart;
+    console.log("Shopify Response Data:", shopifyResponse.data);  // Log the response data
+
+    if (shopifyResponse.data.errors) {
+      console.error('GraphQL errors:', shopifyResponse.data.errors);
+      return res.status(500).json({ message: 'Failed to fetch cart', errors: shopifyResponse.data.errors });
+    }
+
+    const cartData = shopifyResponse.data.data?.cart;  // Use optional chaining to prevent the error
+
+    if (!cartData) {
+      console.error('No cart data found in response');
+      return res.status(500).json({ message: 'Failed to load cart data' });
+    }
+
     console.log("Cart Data from Shopify:", cartData);  // Log the cart data received
 
     res.status(200).json(cartData);
@@ -314,6 +327,7 @@ exports.fetchCart = async (req, res) => {
     res.status(500).json({ message: 'Failed to load cart' });
   }
 };
+
 
 
 

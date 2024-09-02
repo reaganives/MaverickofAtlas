@@ -63,16 +63,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         navigate('/cart');
       } else {
         console.error('Failed to add item to cart');
+        // Optionally show a user-friendly error message
       }
     } catch (err) {
       console.error('Error adding item to cart:', err);
-      // Handle error, maybe show a notification to the user
+      // Optionally show a user-friendly error message
     } finally {
       setAdding(false);
     }
   };
   
-
   // Fetch the price from the selected variant, or fall back to the first variant's price
   const productPrice = selectedVariant?.price || product.variants[0]?.price || 'N/A';
 
