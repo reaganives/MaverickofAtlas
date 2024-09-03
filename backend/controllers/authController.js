@@ -43,21 +43,24 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
-// Login
+// Login function
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     console.log('Starting login process for user:', email);
 
-    const user = await User.findOne({ email });
+    // Convert the email to lowercase to ensure case-insensitive comparison
+    const lowerCaseEmail = email.toLowerCase();
+
+    const user = await User.findOne({ email: lowerCaseEmail });
     if (!user) {
-      console.log('User not found:', email);
+      console.log('User not found:', lowerCaseEmail);
       return res.status(404).json({ error: 'User not found. Please register or check your email.' });
     }
 
     if (!user.isVerified) {
-      console.log('User not verified:', email);
+      console.log('User not verified:', lowerCaseEmail);
 
       // Generate a new verification token
       const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -65,7 +68,7 @@ const login = async (req, res) => {
       await user.save();
 
       // Generate verification link
-      const verificationLink = `https://moa.reaganives.io/verify-email/${verificationToken}`;
+      const verificationLink = `https:moa.reaganives.io/verify-email/${verificationToken}`;
 
       // Set up email parameters
       const params = {
@@ -81,20 +84,20 @@ const login = async (req, res) => {
 
       // Send the email
       await ses.sendEmail(params).promise();
-      console.log('Verification email sent to:', email);
+      console.log('Verification email sent to:', lowerCaseEmail);
 
       return res.status(403).json({ error: 'Please verify your account to login. A verification email has been sent.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log('Invalid password attempt for user:', email);
+      console.log('Invalid password attempt for user:', lowerCaseEmail);
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
     // Clear guest token to prevent access to guest cart
     res.clearCookie('guestToken');
-    console.log('Guest token cleared for user:', email);
+    console.log('Guest token cleared for user:', lowerCaseEmail);
 
     // Generate access and refresh tokens
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -114,7 +117,7 @@ const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log('Access and refresh tokens set for user:', email);
+    console.log('Access and refresh tokens set for user:', lowerCaseEmail);
 
     // Check if the user has a shopifyCartToken and store it in cookies if it exists
     if (user.shopifyCartToken) {
@@ -124,16 +127,17 @@ const login = async (req, res) => {
         sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      console.log('Shopify cart token set in cookie for user:', email);
+      console.log('Shopify cart token set in cookie for user:', lowerCaseEmail);
     }
 
     res.status(200).json({ message: 'Login successful', user });
-    console.log('Login successful for user:', email);
+    console.log('Login successful for user:', lowerCaseEmail);
   } catch (error) {
-    console.error('Login error for user:', email, 'Error:', error.message);
+    console.error('Login error for user:', lowerCaseEmail, 'Error:', error.message);
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 };
+
 
 // Register function
 const register = async (req, res) => {
