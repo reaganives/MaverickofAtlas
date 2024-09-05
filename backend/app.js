@@ -21,9 +21,17 @@ app.get('/health', (req, res) => {
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin: ['https://moa.reaganives.io','http://localhost:5173'], // The frontend origin
-    credentials: true,  // Allow credentials (cookies) to be sent
-  }));
+  origin: function (origin, callback) {
+      const allowedOrigins = ['https://moa.reaganives.io', 'http://localhost:5173'];
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+      } else {
+          callback(new Error('Not allowed by CORS'));
+      }
+  },
+  credentials: true,  // Allow credentials (cookies) to be sent
+}));
+
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
