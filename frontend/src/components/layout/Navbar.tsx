@@ -35,7 +35,7 @@ export default function Navbar() {
 
     return (
         <div
-            className="w-full items-center text-xs font-quicksand text-ivyPurple"
+            className="sticky top-0 w-full items-center text-xs font-quicksand text-ivyPurple"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
