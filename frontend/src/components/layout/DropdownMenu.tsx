@@ -25,7 +25,7 @@ export default function DropdownMenu() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <div className="flex items-center w-fit text-xs font-semibold tracking-widest cursor-pointer font-quicksand text-ivyPurple mb-4">
+            <div className="flex items-center w-fit text-xs font-semibold tracking-widest cursor-pointer font-quicksand text-ivyPurple mb-4 z-40">
                 <button className="mr-2">
                     <svg
                         className="w-4 h-4"
