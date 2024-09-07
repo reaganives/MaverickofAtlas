@@ -13,7 +13,7 @@ export default function RequestNewPassPage () {
                 <div className="w-full lg:flex hidden">
                     <Navbar />
                 </div>
-                <div className="w-full">
+                <div className="w-full lg:hidden">
                     <MobileNavbar />
                 </div>
                 <div className="w-full flex justify-center">
