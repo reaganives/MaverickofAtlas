@@ -86,13 +86,13 @@ export default function LandingPageSlide() {
                 </Slider>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-30">
                     <div className="text-lg md:text-4xl lg:text-5xl font-poiret font-bold tracking-wide p-1">
-                        FOR THOSE WITH THE EYES TO SEE
+                        <h1>FOR THOSE WITH THE EYES TO SEE</h1>
                     </div>
                     <div className="text-md sm:text-base font-poiret mt-2 italic">
-                       from Maverick of Atlas
+                       <h2>from Maverick of Atlas</h2>
                     </div>
                     <div className="text-xs sm:text-sm mt-1">
-                        EST. 2024
+                        <h3>EST. 2024</h3>
                     </div>
                 </div>
             </div>
