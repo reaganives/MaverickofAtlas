@@ -1,5 +1,5 @@
 import ProductDetails from './ProductDetails';
-import RetroIcon from '../logo/RetroIcon';
+// import RetroIcon from '../logo/RetroIcon';
 
 interface Variant {
   id: string;
@@ -30,7 +30,7 @@ const ProductDetailsWrapper: React.FC<ProductDetailsWrapperProps> = ({ product }
       </div>
       {/* Set z-index lower here to push RetroIcon behind */}
       <div className="absolute inset-0 bottom-60 -top-16 flex items-center justify-center pointer-events-none z-0 opacity-80">
-        <RetroIcon />
+        {/* <RetroIcon /> */}
         {/* <ArtDecoCity /> */}
       </div>
     </div>
