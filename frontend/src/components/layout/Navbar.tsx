@@ -3,6 +3,7 @@ import CheckroomIcon from '@mui/icons-material/Checkroom';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../axiosConfig';
 import ShippingBanner from './ShippingBanner';
+import Github from './Github';
 
 export default function Navbar() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -93,6 +94,9 @@ export default function Navbar() {
             {/* Centered and Fixed Shipping Banner */}
             <div className="fixed inset-x-0 top-6 pt-2 flex justify-center">
                 <ShippingBanner isNavbarHovered={isHovered} />
+            </div>
+            <div>
+                <Github url="https://github.com/reaganives/MoA"/>
             </div>
         </div>
     );
