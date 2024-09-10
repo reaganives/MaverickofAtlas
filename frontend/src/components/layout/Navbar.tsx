@@ -96,7 +96,7 @@ export default function Navbar() {
                 <ShippingBanner isNavbarHovered={isHovered} />
             </div>
             <div>
-                <Github url="https://github.com/reaganives/MoA"/>
+                <Github url="https://github.com/reaganives/MaverickofAtlas"/>
             </div>
         </div>
     );
