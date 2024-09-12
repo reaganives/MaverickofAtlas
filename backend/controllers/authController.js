@@ -242,7 +242,9 @@ const verifyEmail = async (req, res) => {
 
 // Configure AWS SDK for sending emails
 AWS.config.update({
-  region: process.env.AWS_REGION || 'us-west-1'
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
 });
 
 const ses = new AWS.SES({ apiVersion: '2010-12-01' });
