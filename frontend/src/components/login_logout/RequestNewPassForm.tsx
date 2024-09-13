@@ -9,7 +9,7 @@ const RequestNewPassForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:4000/api/auth/reset-password', { email });
+            const response = await axios.post('https://api.moa.reaganives.io/api/auth/reset-password', { email });
             if (response.data.success) {
                 setMessage('If this email exists, you will receive a password reset link.');
             } else {

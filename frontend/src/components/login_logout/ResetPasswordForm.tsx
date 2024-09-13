@@ -21,7 +21,7 @@ const ResetPasswordForm = () => {
 
     try {
       // Call the backend to reset the password, passing token in URL
-      const response = await axios.patch(`http://localhost:4000/api/auth/reset-password/${token}`, {
+      const response = await axios.patch(`https://api.moa.reaganives.io/api/auth/reset-password/${token}`, {
         password,
         confirmPassword
       });
