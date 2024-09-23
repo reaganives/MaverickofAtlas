@@ -9,7 +9,7 @@ const Payment = require('../models/Payment');
 const Shipping = require('../models/Shipping');
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://reaganives:fMKCDznObK9r1dxg@maverickofatlasdb.k3bup.mongodb.net/?retryWrites=true&w=majority&appName=maverickOfAtlasDB')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(err));
 
