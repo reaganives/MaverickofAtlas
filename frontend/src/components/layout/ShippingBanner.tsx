@@ -33,7 +33,7 @@ export default function ShippingBanner({ isNavbarHovered }: ShippingBannerProps)
             className="transition-opacity duration-500"
         >
             <p className="font-novo font-light tracking-wide text-ivyPurple text-xs transition-all duration-300 text-center">
-                This is a demo site created by <span className='font-semibold italic'>Reagan Ives</span>. All products are for demonstration purposes only.
+                Free shipping on all orders inside the US over $150.<span className='font-semibold italic'></span>
             </p>
         </motion.div>
     );

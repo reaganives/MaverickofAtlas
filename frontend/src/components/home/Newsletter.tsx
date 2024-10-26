@@ -47,7 +47,7 @@ export default function NewsletterSignup() {
     return (
         <>
             <motion.div
-                className="fixed bottom-12 right-12 bg-white/60 backdrop-blur-sm p-4 w-1/2 max-w-xs z-50 border-2 border-ivyPurple shadow-md"
+                className="fixed bottom-12 right-12 bg-white/90 backdrop-blur-sm p-4 w-1/2 max-w-[350px] z-50 border-2 border-ivyPurple shadow-md"
                 initial={{ y: 100, opacity: 0 }}  // Start off-screen
                 animate={{ y: isVisible ? 0 : 100, opacity: isVisible ? 1 : 0 }}  // Slide up into position
                 transition={{ type: 'spring', stiffness: 50 }}  // Adjust spring effect
@@ -61,7 +61,7 @@ export default function NewsletterSignup() {
                     <CloseIcon />
                 </button>
 
-                <h3 className="text-lg font-poiret tracking-widest mb-2 text-center text-ivyPurple pb-1">
+                <h3 className="text-xl font-poiret tracking-widest mb-8 text-center text-ivyPurple pb-1">
                     NEWSLETTER
                 </h3>
                 <form className="flex items-center justify-center overflow-hidden pb-1" onSubmit={handleSubmit}>

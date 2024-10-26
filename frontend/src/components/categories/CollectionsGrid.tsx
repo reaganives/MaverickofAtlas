@@ -68,7 +68,7 @@ export default function CollectionItemsGrid() {
               <img
                 src={item.imageUrl}
                 alt={item.title}
-                className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer"
+                className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer scale-95"
               />
             </Link>
             <div className="text-center">

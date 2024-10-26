@@ -29,7 +29,7 @@ function App() {
                 <CollectionsPage />
                 <HomeDivider />
                 <div className='w-full flex justify-center mt-20'>
-                  <div className='w-full max-w-screen-lg'>
+                  <div className='w-full max-w-screen-xl px-16'>
                     <Footer />
                   </div>
                 </div>
@@ -45,7 +45,7 @@ function App() {
                 <ProductPage />
                 <HomeDivider />
                 <div className='w-full flex justify-center mt-20'>
-                  <div className='w-full max-w-screen-lg'>
+                  <div className='w-full max-w-screen-xl px-16'>
                     <Footer />
                   </div>
                 </div>
@@ -62,7 +62,7 @@ function App() {
                   <LoginPage />
                   <HomeDivider />
                   <div className='w-full flex justify-center mt-20'>
-                    <div className='w-full max-w-screen-lg'>
+                    <div className='w-full max-w-screen-xl px-16'>
                       <Footer />
                     </div>
                   </div>
@@ -79,7 +79,7 @@ function App() {
                 <CartPage />
                 <HomeDivider />
                 <div className='w-full flex justify-center mt-20'>
-                  <div className='w-full max-w-screen-lg'>
+                  <div className='w-full max-w-screen-xl px-16'>
                     <Footer />
                   </div>
                 </div>
@@ -96,7 +96,7 @@ function App() {
                   <RegistrationPage />
                   <HomeDivider />
                   <div className='w-full flex justify-center mt-20'>
-                    <div className='w-full max-w-screen-lg'>
+                    <div className='w-full max-w-screen-xl px-16'>
                       <Footer />
                     </div>
                   </div>
@@ -114,7 +114,7 @@ function App() {
                 <HomeDivider />
               </div>
               <div className='w-full flex justify-center mt-20'>
-                <div className='w-full max-w-screen-lg'>
+                <div className='w-full max-w-screen-xl px-16'>
                   <Footer />
                 </div>
               </div>
@@ -128,7 +128,7 @@ function App() {
               <Dashboard />
               <HomeDivider />
               <div className='w-full flex justify-center mt-20'>
-                <div className='w-full max-w-screen-lg'>
+                <div className='w-full max-w-screen-xl px-16'>
                   <Footer />
                 </div>
               </div>
@@ -144,7 +144,7 @@ function App() {
                   <RequestNewPassPage />
                   <HomeDivider />
                   <div className='w-full flex justify-center mt-20'>
-                    <div className='w-full max-w-screen-lg'>
+                    <div className='w-full max-w-screen-xl px-16'>
                       <Footer />
                     </div>
                   </div>
@@ -162,7 +162,7 @@ function App() {
                   <ResetPassPage />
                   <HomeDivider />
                   <div className='w-full flex justify-center mt-20'>
-                    <div className='w-full max-w-screen-lg'>
+                    <div className='w-full max-w-screen-xl px-16'>
                       <Footer />
                     </div>
                   </div>

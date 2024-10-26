@@ -8,7 +8,7 @@ import MobileNavbar from "../layout/MobileNavbar";
 export default function HomePage() {
     return (
         <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white pt-2 px-4 lg:px-0">
-            <div className="w-full max-w-screen-lg flex flex-col items-center gap-20">
+            <div className="w-full max-w-screen-xl flex flex-col items-center gap-20">
                 <div className="w-full hidden lg:flex">
                     <Navbar />
                 </div>
@@ -18,10 +18,10 @@ export default function HomePage() {
                 <div className="w-full flex justify-center items-center">
                     <LogoHome />
                 </div>
-                <div className="w-full px-4">
+                <div className="w-full px-2">
                     <LandingPageSlide />
                 </div>
-                <div className="w-full">
+                <div className="w-full px-2">
                     <NewArrivalsGrid />
                 </div>
             </div>

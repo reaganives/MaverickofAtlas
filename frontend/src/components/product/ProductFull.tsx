@@ -55,7 +55,7 @@ export default function ProductFull() {
   }
 
   return (
-    <div className="flex flex-col items-center lg:flex-row w-full gap-16 lg:gap-52">
+    <div className="flex flex-row items-center justify-between lg:flex-row w-full lg:gap-60 px-16">
       {/* Pass the images array as a prop to ProductImages */}
       <ProductImages products={product.images} />
       <ProductDetailsWrapper product={product} />

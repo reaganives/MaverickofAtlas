@@ -24,7 +24,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ products = [] }) => {
     <div className="flex flex-col py-4"> {/* Reduced padding from py-10 to py-4 */}
       {/* Main Image */}
       <div className="mb-2"> {/* Reduced margin-bottom from mb-4 to mb-2 */}
-        <div className="w-96 flex jusitfy-center items-center" style={{ height: '530px' }}> {/* Adjust the size as needed */}
+        <div className="w-[450px] flex jusitfy-center items-center" style={{ height: '530px' }}> {/* Adjust the size as needed */}
           {mainImage && (
             <Zoom>
               <img

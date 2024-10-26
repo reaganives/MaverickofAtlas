@@ -81,7 +81,7 @@ export default function CollectionItemsGrid() {
               <img
                 src={item.imageUrl}
                 alt={item.title}
-                className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer"
+                className="object-cover mb-2 hover:ring-4 ring-black cursor-pointer scale-95"
               />
             </Link>
             <div className="text-center">
@@ -95,7 +95,7 @@ export default function CollectionItemsGrid() {
           </div>
         ))}
       </div>
-      <div className="text-end mt-8">
+      <div className="text-end mt-12 px-2">
         <ViewAll />
       </div>
     </motion.div>

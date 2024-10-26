@@ -36,7 +36,7 @@ export default function Navbar() {
 
     return (
         <div
-            className=" w-full items-center text-xs font-quicksand text-ivyPurple"
+            className=" w-full items-center text-xs font-quicksand text-ivyPurple border border-gray-50"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >

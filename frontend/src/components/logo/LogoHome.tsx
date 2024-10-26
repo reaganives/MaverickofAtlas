@@ -28,7 +28,7 @@ export default function LogoHome() {
                 <Logo />
             </div>
             <div className='text-end'>
-                <h1 className="text-2xl font-poiret tracking-wider text-ivyPurple">
+                <h1 className="text-3xl font-poiret tracking-wider text-ivyPurple">
                     MAVERICK OF ATLAS
                 </h1>
             </div>
