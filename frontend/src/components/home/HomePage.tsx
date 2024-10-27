@@ -4,6 +4,7 @@ import LogoHome from "../logo/LogoHome";
 import Navbar from "../layout/Navbar";
 import NewsLetterSignup from "./Newsletter";
 import MobileNavbar from "../layout/MobileNavbar";
+import BrandVision from "./BrandVision";
 
 export default function HomePage() {
     return (
@@ -18,14 +19,14 @@ export default function HomePage() {
                 <div className="w-full flex justify-center items-center">
                     <LogoHome />
                 </div>
-                <div className="w-full px-2">
+                <div className="w-full">
                     <LandingPageSlide />
                 </div>
                 <div className="w-full px-2">
                     <NewArrivalsGrid />
                 </div>
             </div>
-            <div className="w-full">
+            <div className="w-full hidden md:flex">
                     <NewsLetterSignup />
             </div>
         </div>
