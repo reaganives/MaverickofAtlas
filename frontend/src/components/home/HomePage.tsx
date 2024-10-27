@@ -4,7 +4,7 @@ import LogoHome from "../logo/LogoHome";
 import Navbar from "../layout/Navbar";
 import NewsLetterSignup from "./Newsletter";
 import MobileNavbar from "../layout/MobileNavbar";
-import BrandVision from "./BrandVision";
+
 
 export default function HomePage() {
     return (
